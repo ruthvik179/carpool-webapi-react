@@ -1,0 +1,913 @@
+html,body{
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    font-family: "Open Sans";
+}
+.layout{
+    height: fit-content;
+    cursor: pointer;
+}
+#root .App{
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 99%;
+    height: 99%;
+}
+.header {
+    background-image : url("./../images/img1.png");
+    background-repeat : no-repeat;
+    background-position: left bottom;
+    height : 628px;
+    color :  #334053;
+    font-size : 3vmax;
+    text-align: left;
+}
+.Login {
+    display: flex;
+}
+@mixin heading-layout{
+    margin : 0;
+    padding : 0 0 0 3%;
+    font-size: 6.8vmax;
+}
+@mixin login-signup($color){
+    width: 40%;
+    align-self: center;
+    border: none;
+    border-radius: 45px;
+    padding: 2% 5% 2% 5%;
+    background-color: $color;
+    color: white;
+}
+@mixin sub-heading($color){
+    color: $color;
+}
+@mixin input(){
+    padding: 4%;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 3%;
+}
+@mixin overlay($color){
+    background: $color;
+    background-image: url("./../images/imgg2.png");
+    background-repeat : no-repeat;
+    background-position: bottom;
+}
+@mixin menu-layout($justify){
+    display: flex;
+    justify-content: $justify;
+}
+@mixin button-normal($color, $hovercolor){
+    background-color: $color !important;
+    border: none;
+    color: white;
+    border-radius: 4%;
+    &:hover {
+        background-color:$hovercolor !important;
+    }
+}
+@mixin menu-button($color, $hovercolor){
+    width: 38%;
+    padding: 9% 0;
+    font-size: 1.7vmax;
+    @include button-normal($color, $hovercolor);
+}
+.heading1 {
+    @include heading-layout();
+    margin-bottom : -3%;
+}
+.heading2 {
+    @include heading-layout();
+    margin-top : -3%;
+    padding-left: 3.8%;
+    letter-spacing: 4px;
+}
+.sub-heading1{
+    @include sub-heading(#9319ff);
+}
+.sub-heading2{
+    @include sub-heading(#ffac19);
+    letter-spacing: 0px;
+}
+.logo{
+    padding: 3%;
+    width: fit-content;
+}
+.overlay-login{
+    @include overlay(rgba(147, 25, 255, 0.8));
+}
+.overlay-signup{
+    @include overlay(rgba(255, 172, 25, 0.8));
+}
+.form{
+    display: flex;
+    justify-content: center;
+    color: white;
+    a{
+        color: white;
+        font-size: 1.3vmax;
+        font-weight: bolder;
+    }
+    .centre-line{
+        border: 1px solid white;
+        width: 16%;
+        color: white;
+        size: 17px;
+        margin: 0;
+        align-self: center;
+        margin-bottom: 10%;
+    }
+    .side-line{
+        border: 1px solid white;
+        width: 11%;
+        color: white;
+        size: 17px;
+        margin: 0 0 0px 114px;
+        align-self: center;
+        margin-bottom: 10%;
+    }
+    p{
+        margin-top: 6%;
+        margin-bottom: 2%;
+    }
+}
+.login-form {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    padding-top: 158px;
+    .error{
+        font-weight: 900;
+        border-radius: 20px;
+        padding: 1%;
+        margin: 2%;
+        border: 2px solid white;
+    }
+}
+.signup-form{
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    margin-top: 50px;
+    div{
+        display: flex;
+        flex-direction: column;
+        label{
+            align-self: flex-start;
+        }
+    }
+}
+.form-field{
+    @include input();
+}
+.login-button{
+    @include login-signup(#ffac19);
+}
+.signup-button{
+    @include login-signup(#9319ff);
+}
+ //home CSS
+.home-container{
+    height: 82%;
+    background-image: url("./../images/img3.png");
+    background: url('./../images/img3.png') bottom no-repeat;
+}
+.home-menu{
+    padding-top: 2%;
+    width: inherit;
+    margin: 0;
+}
+ .menu-book{
+    @include menu-layout(flex-end);
+ }
+ .menu-offer{
+    @include menu-layout(flex-start);
+ }
+ .button-book{
+    @include menu-button(#9319ff, #ffac19);
+ }
+ .button-offer{
+    @include menu-button(#ffac19, #9319ff);
+ }
+.header-row{
+    width: inherit;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+}
+.header-column{
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 5.6%;
+}
+.welcome-text{
+    width: fit-content;
+}
+
+//Book
+@mixin location-graphic{
+    padding: 0;
+    display: flex;
+    align-items: flex-end;
+    .location-graphic{
+        display: flex;
+        align-items: center;
+        .material-icons{
+            font-size: 10px;
+            margin: 2%;
+            color: #d0d0d0;
+        }
+        .source, .destination{
+            font-size: 20px;
+            color: #9319ff;
+        }
+    }
+}
+.book{
+    height: 82%;
+    margin: 0;
+    display: flex;
+}
+.result-container{
+    width: 70%;
+    margin-left: 3%;
+    .matches{
+        padding: 3% 0;
+        color: #9319ff;
+        h1{
+            text-align: left;
+            font-weight: 700;
+        }
+    }
+}
+.ride-form{
+    height: fit-content;
+    border-radius: 6px;
+    margin-left: 2%;
+    width: 25%;
+    display: flex;
+    flex-direction: row;
+    h1, h2{
+        font-weight: 700;
+        color: black;
+    }
+    h3, h4, h5, h6, p {
+        font-weight: 300;
+        color: #8e8e8e;
+        font-size: small;
+        text-align: left;
+        margin: 2% 1%;
+    }
+    .heading {
+        display: flex;
+    }
+    .sub-form{
+        display: flex;
+        flex-direction: column;
+        padding: 5%;
+        width: 100%;
+        
+        label{
+            color: #8e8e8e;
+            align-self: flex-start;
+            margin: 0;
+            font-size: 0.69vmax;
+            font-weight: 700;
+            div{
+                font-weight: bolder;
+                font-size: 0.7vmax;
+            }
+        }
+        .btn{
+            box-shadow: none;
+            margin:  0 7% 1% 0;
+            color: black;
+        }
+        .source, .destination, .date {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin-bottom: 10%;
+            input{
+                border: none;
+                border-bottom: 2px solid #d0d0d0;
+                width: 98%;
+                color: #d0d0d0;
+                &:focus{
+                    color: black;
+                    outline: none;
+                }
+            }
+        }
+        .submit-container{
+            display: flex;
+            .submit{
+                border-radius: 20px;
+                width: 32%;
+                padding: 2% 0;
+                color: white;
+                background-color: #ffac19;
+                border: none;
+                &:hover{
+                    background-color: #9319ff;
+                }
+            }
+        }
+        .next-container{
+            display: flex;
+            justify-content: flex-end;
+            .next{
+                border: none;
+                background-color: white;
+                color: #9319ff;
+                font-weight: bolder;
+                outline: none;
+                &:hover{
+                    color: #ffac19;
+                }
+            }
+        }
+        .button-group-pills{
+            display: flex;
+            flex-wrap: wrap;
+            padding: 4% 0 6% 0;
+        }
+        .time{
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin-bottom: 10%;
+            margin: 0;
+        }
+        .location-graphic-container{
+            @include location-graphic();
+            .location-graphic{
+                flex-direction: column;
+                .material-icons{
+                    margin: 8%;
+                }
+            }
+            align-items: flex-start;
+        }
+        .route{
+            display: flex;
+            padding-top: 10%;
+            .route-details{
+                width: 90%;
+            }
+        }
+    }
+}
+
+.book-toggle{
+    margin-left: 18%;
+    padding-top: 11px;
+}
+.custom-control-label::before{
+    background-color: #ffac19;
+    border: none;
+    height: 1.5rem;
+}
+.custom-switch .custom-control-label::before{
+    left: -2.25rem;
+    width: 2.75rem;
+    border-radius: .7rem;
+}
+.custom-switch .custom-control-label::after{
+    background-color: white;
+    width: calc(1.5rem - 4px);
+    height: calc(1.5rem - 4px);
+    border-radius: .7rem;
+}
+.custom-switch .custom-control-input:checked~.custom-control-label::after {
+    transform: translateX(1.2rem);
+}
+.custom-control-input:checked~.custom-control-label::before{
+    border-color: #9319ff;
+    background-color: #9319ff;
+}
+  .button-group-pills .btn {
+    width: 26%;
+    border-radius: 20px;
+    line-height: 0;
+    margin-bottom: 15px;
+    border: 1.5px solid #9319ff !important;
+    background-color: #FFF !important;
+    color: #9319ff;
+    padding: 3% 3% 2% 4%;
+    input{
+        -webkit-appearance: none
+    }
+  }
+  .button-group-pills .btn.active {
+    border-color: #9319ff;
+    background-color: #9319ff !important;
+    color: #FFF;
+    box-shadow: none;
+  }
+  .button-group-pills .btn:hover {
+    border-color: #9319ff;
+    background-color: #9319ff !important;
+    color: #FFF;
+  }
+  .btn-default:not([disabled]):not(.disabled):active, 
+  .btn-default:not([disabled]):not(.disabled).active,
+   .show>.btn-default.dropdown-toggle {
+        background-color: #9319ff !important;
+        box-shadow: none;
+        .btn{
+            color: white;
+        }
+   }
+//Card CSS
+
+.result-card{
+    height: 43%;
+    width: 40%;
+    padding: 1.5%;
+    margin-top: 5%;
+    .result-header{
+        height: 25%;
+    }
+    .result-heading{
+        height: 100%;
+        h1{
+            font-weight: 700;
+            font-size: 2vmax;
+            text-align: left;
+            display: flex;
+            span{
+                font-size: 1vmax;
+                padding: 3%;
+                align-self: center;
+                margin: 4%;
+            }
+        }
+    }
+    .profile-image{
+        height: 100%;
+        display: flex;
+        justify-content: flex-end;
+        img{
+            border-radius: 50px;
+        }
+    }
+    .result-column{
+        margin: 1.5% 0;
+        padding-right: 0;
+        p{
+            margin: 0;
+            text-align: left;
+            font-size: 1vmax;
+        }
+        .label{
+            font-size: 0.7vmax;
+            font-weight: 700;
+            color: #8e8e8e;
+        }
+    }
+    .location-graphic-container{
+        @include location-graphic();
+
+    }
+    .request-button{
+        margin: 0 5% 0 auto;
+        background-color: #ffac19;
+        border: none;
+        color: white;
+        border-radius: 50px;
+        padding: 1% 4%;
+        &:hover{
+            background-color: #9319ff;
+        }
+    }
+
+}
+
+// Offer
+.offer{
+    display: flex;
+    height: 82%;
+    .book-toggle{
+        margin-left: 28%;
+    }
+    .viaPoint{
+        margin-left: 5%;
+        width: 25%;
+        height: fit-content;
+        .heading{
+            display: flex;
+            padding: 5%;
+            h1{
+                text-align: left;
+                font-weight: bolder;
+            }
+            p{
+                font-weight: 300;
+                color: #8e8e8e;
+                font-size: small;
+                text-align: left;
+                margin: 2% 1%;
+            }
+        }
+        .btn {
+            background-color: #ffac19;
+            margin: 0;
+            border-radius: 50px;
+            padding: 5% 6%;
+            box-shadow: none;
+            &:hover{
+                background-color: #9319ff;
+            }
+            .fa-plus{
+                color: white;
+                &:hover{
+                    color: white;
+                }
+            }
+        }
+        .route-details{
+            display: flex;
+            flex-direction: column;
+            .form-group{
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                width: 95%;
+                padding-left: 6%;
+                label{
+                    font-size: 0.8vmax;
+                    font-weight: 700;
+                    color: #8e8e8e;
+                }
+                .input-group{
+                    input{
+                        border: none;
+                        border-bottom: 2px solid #d0d0d0;
+                    }
+                }
+            }
+            .input-group{
+                button{
+                border: none;
+                background-color: white;
+                color: #9319ff;
+                &:hover{
+                    color: #ffac19;
+                }
+                }
+            }
+            .submit-container{
+                display: flex;
+                .submit{
+                    border: none;
+                    background-color: #ffac19;
+                    outline: none;
+                    border-radius: 20px;
+                    color: white;
+                    font-weight: 700;
+                    font-size: 1vmax;
+                    width: 25%;
+                    padding: 1.5% 0%;
+                    margin: 2.5% 4.5% 4.5% 4.5%;
+                    &:hover{
+                        background-color: #9319ff;
+                    }
+                }
+            }
+        }
+    }
+}
+
+//Seats Style
+
+.seats {
+    .button-group-pills {
+        display: flex;
+        .btn{
+            padding: 5% 4% 5% 4%;
+            margin: 0% 0% 4% 5%;
+            display: flex;
+        }
+    }
+    .seat-count{
+        display: flex;
+        margin-left: 5%;
+        font-weight: bolder;
+        color: #8e8e8e;
+    }
+}
+
+//Register Driver
+@mixin DriverDetails {
+    .card{
+        height: fit-content;
+        width: 30%;
+        padding: 1.5% 1.5% 0.5% 1.5%;
+        align-self: flex-start;
+        margin-top: 1%;
+        div{
+            display: flex;
+            flex-direction: column;
+            margin: 4% 0;
+            justify-content: space-between;
+            label{
+                text-align: left;
+                font-weight: 700;
+                color: #8e8e8e;
+                font-size: 0.8vmax;
+            }
+            input{
+                border: none;
+                border-bottom: 2px solid #d0d0d0;
+                outline: none;
+                color: black;
+                &:focus{
+                    color: black;
+                }
+                &::placeholder{
+                    color: #d0d0d0;
+                }
+            }
+        }
+        .submit-container{
+            .submit{
+                border: none;
+                width: 27%;
+                border-radius: 20px;
+                padding: 1.5% 0%;
+                color: white;
+                font-weight: 700;
+                background-color: #ffac19;
+                &:hover{
+                    background-color: #9319ff;
+                }
+            }
+        }
+        .heading{
+            margin: 0;
+            h1{
+                text-align: left;
+                font-size: 1.5vmax;
+                font-weight: 700;
+            }
+        }
+    }
+}
+.register-driver{
+    .main-heading{
+        font-size: 6vmax;
+        width: 46%;
+        text-align: left;
+        align-self: baseline;
+        margin: 4% 2% 4% 8%;
+        font-weight: 900;
+        .offer-text{
+            color : #9319ff;
+            &:hover{
+                color: #ffac19;
+                cursor: none;
+            }
+        }
+        .driver-text{
+            color : #ffac19;
+            &:hover{
+                color: #9319ff;
+                cursor: none;
+            }
+        }
+    }
+    width: 100%;
+    height: 83%;
+    display: flex;
+    align-items: center;
+    @include DriverDetails();
+}
+
+.profile-container{
+    display: flex;
+    justify-content: flex-end;
+    padding: 2% 4% 0 0;
+    height: 13%;
+    .btn-group{
+        button{
+            background-color: white !important;
+            color: black;
+            box-shadow: none;
+            display: flex;
+            padding: 0;
+            align-items: center;
+            justify-content: center;
+            padding: 5%;
+            font-weight: 700;
+            &:hover{
+                background-color: #9319ff !important;
+                color: white;
+            }
+            padding: 7%;
+            display: flex;
+            img{
+                height: 3vmax;
+                border-radius: 40px;
+            }
+            p{
+                margin: 0;
+            }
+        }
+    }
+    .dropdown-menu{
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2), 0 6px 6px rgba(0,0,0,0.01);
+        border: none;
+    }
+}
+//View Rides Style
+
+.rides-container{
+    width: 100%;
+    height: 83%;
+    display: flex;
+    justify-content: space-between;
+    .ride{
+        width : 25%;
+        margin : 3%;
+        .heading{
+            font-weight: 700;
+            font-size: 1.7vmax;
+            width: -moz-fit-content;
+            width: fit-content;
+            padding: 2%;
+            margin: 0% 0% 5% 0%;
+            background-color: #9319ff;
+            color: white;
+            border-radius: 10px;
+            &:hover{
+                background-color: #ffac19;
+            }
+        }
+        .result-card{
+            width: 100%;
+        }
+    }
+}
+
+//Popup
+  .popup {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    background-color: rgba(0,0,0, 0.5);
+    .popup-inner {
+        position: absolute;
+        left: 28%;
+        right: 28%;
+        top: 19%;
+        bottom: 19%;
+        margin: auto;
+        background: white;
+        .row{
+            .col{
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                margin: 2%;
+                p{
+                    margin:0;
+                }
+                .label{
+                    font-size: 0.7vmax;
+                    font-weight: 700;
+                    color: #8e8e8e;
+                }
+            }
+            .active{
+                border: 2px solid #9319ff;
+                border-top: none;
+            }
+            .close{
+                margin: 0.5% 0 0 50%;
+                border: none;
+                background-color: white;
+                height: 43%;
+                &:focus{
+                    outline: none;
+                }
+                b{
+                    font-size: 1vmax;
+                }
+            }
+            .col-1{
+                display: flex;
+            }
+            .col-11{
+                display: flex;
+                justify-content: center;
+                h3{
+                    margin: 1% 1% 1% 7%;
+                    padding: 1%;
+                    width: fit-content;
+                }
+            }
+        }
+
+        .tabs{
+            width: 50%;
+            margin-left: 2%;
+            .col-4{
+                border-radius: 1px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                &:hover{
+                    background-color: #9319ff;
+                    color: white;
+                }
+                h3{
+                    width: fit-content;
+                    font-size: 1.2vmax;
+                    margin: 6% 0;
+                }
+            }
+        }
+        .cancel-button{
+            @include button-normal(#9319ff, #ffac19); 
+        }
+        .accept-button{
+            @include button-normal(#9319ff, #ffac19);
+            margin-right: 10%;
+        }
+        .reject-button{
+            @include button-normal(#ffac19, #9319ff);
+        }
+    }
+  }
+//edit-profile styles
+.edit-profile{
+    width: 100%;
+    height: 83%;
+    display: flex;
+    .overlay-signup{
+        background: none;
+        .signup-form{
+            padding: 5%;
+            height: 100%;
+            width: 90%;
+            box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12);
+            border: none;
+            border-radius: 0.25rem;
+            margin-top: 15px;
+            h1{
+                text-align: left;
+                font-size: 1.5vmax;
+                font-weight: 700;
+                color: black;
+            }
+            hr{
+                display: none;
+            }
+            .form-field{
+                border-bottom: 2px solid #d0d0d0;
+                border-radius: 0px;
+                padding: 1% 1%;
+                &:focus{
+                    outline: none;
+                }
+            }
+            label{
+                text-align: left;
+                font-weight: 700;
+                color: #8e8e8e;
+                font-size: 0.8vmax;
+            }
+            div{
+                display: flex;
+                flex-direction: column;
+                margin: 4% 0;
+                justify-content: space-between;
+            }
+            .signup-button{
+                width: 27%;
+                border-radius: 20px;
+                padding: 1.5% 0%;
+                color: white;
+                font-weight: 700;
+                align-self: baseline;
+                &:hover{
+                    background-color: #ffac19;
+                }
+            }
+        }
+    }
+    @include DriverDetails();
+}
