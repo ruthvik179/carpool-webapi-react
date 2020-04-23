@@ -19,13 +19,15 @@ export default function Bookings(props : MyProps) {
       </thead>
       <tbody>
       {props.bookings.map((val: any, i: number) => {
+        var source = val.source.slice(0,val.source.indexOf(","));
+        var destination = val.destination.slice(0,val.destination.indexOf(","));
         const id = val.id;
         return(
           <tr>
             <td>{i+1}</td>
             <td>{val.name}</td>
-            <td>{val.source}</td>
-            <td>{val.destination}</td>
+            <td>{source}</td>
+            <td>{destination}</td>
             <td>₹{val.price}</td>
             <td>
               <button className="cancel-button" onClick={() => {props.handleCancel(id)}}>Cancel</button>

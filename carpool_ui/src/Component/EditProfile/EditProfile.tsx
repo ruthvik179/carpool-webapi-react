@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import SignupForm from './../Signup/SignupForm'
-import { Col } from 'reactstrap';
+import { Col, Alert } from 'reactstrap';
 import RegisterDriverForm from '../RegisterDriver/RegisterDriverForm';
+import { CSSTransition } from 'react-transition-group';
 
 interface MyState{
     name : string;
@@ -17,6 +18,8 @@ interface MyState{
     defaultDetailsValues : details;
     defaultDriverValues : driver;
     isADriver : boolean;
+    success : boolean;
+    alert : string;
 }
 interface details{
 name : string;
@@ -57,6 +60,8 @@ export class EditProfile extends Component <{},MyState>{
             carYearOfManufacture : "",
          },
          isADriver : true,
+         success : false,
+         alert : ""
         }
     }
     componentDidMount(){
@@ -131,6 +136,15 @@ export class EditProfile extends Component <{},MyState>{
                 window.localStorage.setItem("authToken", res.token);
                 window.localStorage.setItem("user", JSON.stringify(res.user))
               }
+              this.setState({
+                  success : true,
+                  alert : "Personal Details Updated"
+              })
+              setTimeout(() => {
+                this.setState({
+                    success: false
+                })
+             }, 2000);
             }).catch(e => {
               console.log(e);
             });
@@ -190,6 +204,17 @@ export class EditProfile extends Component <{},MyState>{
             body: JSON.stringify(data),
             })
             .then(res => console.log(res))
+            .then(() => {
+                this.setState({
+                    success : true,
+                    alert : "Driver Details Updated"
+                })
+                setTimeout(() => {
+                  this.setState({
+                      success: false
+                  })
+               }, 2000);
+            })
             .catch(err => console.log(err));
         }
         };
@@ -226,23 +251,33 @@ export class EditProfile extends Component <{},MyState>{
     }
     render() {
         return (
-            <Col xs="12" className="edit-profile">
-                <SignupForm 
-                heading ="Personal Details" 
-                handleChange={this.handleChange} 
-                handleSubmit={this.handleDetailsSubmit} 
-                error={this.state.errorDetails} 
-                defaultValues={this.state.defaultDetailsValues} 
-                signup={false}
-                />
-                <RegisterDriverForm 
-                defaultValues={this.state.defaultDriverValues} 
-                heading="Driver Details" 
-                error={this.state.errorDriver}
-                handleChange={this.handleChange}
-                handleSubmit={this.handleDriverSubmit}
-                />    
-            </Col>
+            <React.Fragment>
+                <CSSTransition
+                in={this.state.success}
+                timeout={350}
+                classNames="display"
+                unmountOnExit
+                >
+                    <Alert id="alert" color="success">{this.state.alert}</Alert> 
+                </CSSTransition>
+                <Col xs="12" className="edit-profile bg">
+                    <SignupForm 
+                    heading ="Personal Details" 
+                    handleChange={this.handleChange} 
+                    handleSubmit={this.handleDetailsSubmit} 
+                    error={this.state.errorDetails} 
+                    defaultValues={this.state.defaultDetailsValues} 
+                    signup={false}
+                    />
+                    <RegisterDriverForm 
+                    defaultValues={this.state.defaultDriverValues} 
+                    heading="Driver Details" 
+                    error={this.state.errorDriver}
+                    handleChange={this.handleChange}
+                    handleSubmit={this.handleDriverSubmit}
+                    />    
+                </Col>
+            </React.Fragment>
         )
     }
 }

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import history from './../../history'
-import { Container } from 'reactstrap';
+import { Container, Alert } from 'reactstrap';
 import RideForm from './../RideForm/RideForm'
 import './../../Styles/style.scss';
 import SearchResult from "./../SearchCard/SearchCard"
+import { CSSTransition } from 'react-transition-group';
 interface MyProps{
   
 }
@@ -15,7 +16,8 @@ interface MyState{
     time : string;
     searchResults : Matches;
     error: string,
-    distance : number
+    distance : number,
+    success : boolean;
 }
 interface values{
   name : string;
@@ -46,7 +48,8 @@ export class Book extends Component<MyProps, MyState> {
             time: "",
             searchResults : [],
             error : "",
-            distance : 0
+            distance : 0,
+            success : false,
         }
     }
     // initMap =(srcLat, srcLng, dstLat, dstLng) => {
@@ -98,7 +101,9 @@ export class Book extends Component<MyProps, MyState> {
           var dstLocation = new google.maps.LatLng(this.state.destination.lat, this.state.destination.lng);
           var distance = google.maps.geometry.spherical.computeDistanceBetween(srcLocation, dstLocation)
           console.log(distance/1000)
+          distance = +distance.toFixed(2);
           this.setState({
+            error : "",
             distance : distance/1000
           })
           const data = {
@@ -155,22 +160,28 @@ export class Book extends Component<MyProps, MyState> {
         RideId : Id
       };
       console.log(data);
-      fetch(`https://localhost:44347/api/rider/requestride`, {
-          method: "POST",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.authToken,
-          },
-          body: JSON.stringify(data)
+      fetch(`https://localhost:44347/api/rider/requestride`,{
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.authToken,
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(res => console.log(res))
+      .then(() => {
+        this.setState({
+          success : true
         })
-          .then(res => res.json())
-          .then(
-            () => {
-                history.push('/rides');
-              }
-          )
-          .catch(err => console.log(err));
+        setTimeout(() => {
+          this.setState({
+              success: false
+          })
+        }, 2000);
+      })
+      .catch(err => console.log(err));
     }
     render(){
         const values = {
@@ -181,7 +192,16 @@ export class Book extends Component<MyProps, MyState> {
         }
           
     return (
-        <Container fluid={true} className="book">
+      <React.Fragment>
+        <CSSTransition
+        in={this.state.success}
+        timeout={350}
+        classNames="display"
+        unmountOnExit
+        >
+          <Alert id="alert" color="success">Ride has been requested succesfully</Alert> 
+        </CSSTransition>
+        <Container fluid={true} className="book bg">
             <RideForm 
             Heading={'Book A Ride'} 
             handleChange = {this.handleChange} 
@@ -207,12 +227,13 @@ export class Book extends Component<MyProps, MyState> {
                   distance = {val.distance} 
                   price={val.price} 
                   seats ={val.seatCount}
-                  handleRequest = {this.handleRequest}
+                  handleButton = {this.handleRequest}
                   type = "result"
                   />
                 )}): null}
             </div>
         </Container>
+      </React.Fragment>
     );
     }
 }

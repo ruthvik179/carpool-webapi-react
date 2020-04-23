@@ -7,6 +7,11 @@ interface MyProps{
     handleChange : (event: { target: { name: any; value: any;}; } ,) => void
 }
 function Route(props : MyProps) {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = String(today.getFullYear());
+    var date = yyyy + '-' + mm + '-' + dd;
     return (
         <div className="route">
             <div className="route-details">
@@ -20,7 +25,7 @@ function Route(props : MyProps) {
                 </div>
                 <div className="date">
                     <label htmlFor="Date">Date</label>
-                    <input type="Date" id="date" name="date" placeholder="xx/mm/yy" onChange = {(e)=>props.handleChange(e)}/>
+                    <input type="Date" min={date} id="date" name="date" placeholder="xx/mm/yy" onChange = {(e)=>props.handleChange(e)}/>
                 </div>
             </div>
             <div className="location-graphic-container">

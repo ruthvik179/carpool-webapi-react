@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CarpoolReact.ViewModels
 {
-    public class RegisterViewModel
+    public class RegisterRequest
     {
         [Required]
         public string Name { get; set; }

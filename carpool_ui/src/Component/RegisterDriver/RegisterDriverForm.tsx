@@ -21,7 +21,7 @@ function RegisterDriverForm(props : MyProps) {
             <div className="heading">
                 <h1>{props.heading}</h1>
             </div>
-                {props.error ? <p>{props.error}</p> : null}
+                {props.error ? <p className="error">{props.error}</p> : null}
             <div className="license">
                 <label htmlFor="License">License Number</label>
                 <input type="text" id="license" name="license" placeholder="Enter your License" defaultValue={props.defaultValues.license} onChange = {(e)=>props.handleChange(e)}/>

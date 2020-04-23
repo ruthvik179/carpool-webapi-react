@@ -32,7 +32,7 @@ namespace CarpoolReact.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateRide([FromBody] OfferViewModel model)
+        public IActionResult CreateRide([FromBody] OfferRequest model)
         {
             if (model == null)
             {
@@ -44,7 +44,7 @@ namespace CarpoolReact.Controllers
             return StatusCode(code);
         }
         [HttpPost]
-        public IActionResult RegisterDriver([FromBody] RegisterDriverViewModel model )
+        public IActionResult RegisterDriver([FromBody] RegisterDriverRequest model )
         {
             if(model == null)
             {
@@ -52,20 +52,15 @@ namespace CarpoolReact.Controllers
             }
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; 
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            int code = IDriverService.RegisterDriver(model, user);
-            return StatusCode(code);
-        }
-        [HttpPost]
-        public IActionResult DeleteRide([FromBody]string rideId)
-        {
-            if(rideId == null)
+            string result = IDriverService.RegisterDriver(model, user);
+            if(result =="Ok")
             {
-                return BadRequest("invalid object");
+                return Ok();
             }
-            string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            int code = IDriverService.DeleteRide(rideId, user);
-            return StatusCode(code);
+            return BadRequest(new
+            {
+                error = result
+            });
         }
 
         [HttpGet]
@@ -73,14 +68,14 @@ namespace CarpoolReact.Controllers
         {
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            List<MatchResponseModel> Matches = IDriverService.GetRides(user);
+            List<MatchResponse> Matches = IDriverService.GetRides(user);
             return Ok(new
             {
                 Matches = Matches,
             });
         }
         [HttpPost]
-        public IActionResult ConfirmBooking([FromBody]BookingViewModel model)
+        public IActionResult ConfirmBooking([FromBody]BookingRequest model)
         {
             if (model == null)
             {
@@ -123,7 +118,7 @@ namespace CarpoolReact.Controllers
             return Ok(IDriverService.GetRideDetails(rideId));
         }
         [HttpPut]
-        public IActionResult Update(RegisterDriverViewModel model)
+        public IActionResult Update(RegisterDriverRequest model)
         {
             if (model == null)
             {
@@ -133,6 +128,26 @@ namespace CarpoolReact.Controllers
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
             object response = IDriverService.Update(user, model);
             return Ok(response);
+        }
+        [HttpPost]
+        public IActionResult CancelRide([FromBody] string rideId)
+        {
+            if (rideId == "")
+            {
+                return BadRequest("Invalid Object");
+            }
+            string result = IDriverService.CancelRide(rideId);
+            if (result == "Ok")
+            {
+                return Ok(new
+                {
+                    message = "Booking Cancelled Successfully."
+                });
+            }
+            return BadRequest(new
+            {
+                error = result
+            });
         }
     }
 }

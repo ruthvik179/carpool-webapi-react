@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace CarpoolReact.ResponseModels
 {
-    public class RideDetailsResponseModel
+    public class RideDetailsResponse
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Source { get; set; }
         public string Destination { get; set; }
@@ -15,8 +16,9 @@ namespace CarpoolReact.ResponseModels
         public int SeatCount { get; set; }
         public int BookingCount { get; set; }
         public int RequestCount { get; set; }
-        public RideDetailsResponseModel(string name, string source, string destination, string time, string date, int seatCount, int bookingCount, int requestCount)
+        public RideDetailsResponse(string id, string name, string source, string destination, string time, string date, int seatCount, int bookingCount, int requestCount)
         {
+            this.Id = id;
             this.Name = name;
             this.Source = source;
             this.Destination = destination;

@@ -16,7 +16,8 @@ namespace CarpoolReact.Models
         public string BillId { get; set; }
         public BookingState BookingState { get; set; }
         public string BoardingPointId { get; set; }
-        public string DropoffPointId { get; set; }
+        public string DropOffPointId { get; set; }
+        public double CancellationCharges { get; set; }
         public Booking()
         {
 
@@ -28,9 +29,10 @@ namespace CarpoolReact.Models
             this.RiderId = riderId;
             this.RideId = rideId;
             this.BoardingPointId = boardingPointId;
-            this.DropoffPointId = dropoffPointId;
+            this.DropOffPointId = dropoffPointId;
             this.BookingState = BookingState.Ongoing;
             this.BillId = billId;
+            this.CancellationCharges = 0;
         }
 
     }

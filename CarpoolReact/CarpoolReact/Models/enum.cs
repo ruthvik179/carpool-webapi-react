@@ -4,11 +4,12 @@ using System.Text;
 
 namespace CarpoolReact.Models
 {
-    public enum RequestStatus
+    public enum RequestState
     {
         Pending,
         Accepted,
-        Rejected
+        Rejected,
+        Cancelled
     }
 
     public enum SeatState
@@ -21,6 +22,11 @@ namespace CarpoolReact.Models
     {
         Ongoing,
         Completed,
+        Cancelled
+    }
+    public enum RideState
+    {
+        Active,
         Cancelled
     }
     public enum Place

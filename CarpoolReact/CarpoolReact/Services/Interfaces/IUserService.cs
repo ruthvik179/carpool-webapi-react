@@ -10,6 +10,6 @@ namespace CarpoolReact.Interfaces
     public interface IUserService
     {
         public object GetDetails(ApplicationUser user);
-        public int Update(ApplicationUser user, UserUpdateModel model);
+        public int Update(ApplicationUser user, UserUpdateRequest model);
     }
 }

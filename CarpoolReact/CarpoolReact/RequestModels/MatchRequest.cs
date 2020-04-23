@@ -6,19 +6,12 @@ using System.Threading.Tasks;
 
 namespace CarpoolReact.ViewModels
 {
-    public class OfferViewModel
+    public class MatchRequest
     {
         public Location Source { get; set; }
         public Location Destination { get; set; }
         public string Date { get; set; }
         public string Time { get; set; }
-        public List<Location> ViaPoints { get; set; }
-        public string Seats { get; set; }
-
-        public OfferViewModel()
-        {
-            ViaPoints = new List<Location>();
-        }
+        public double Distance { get; set; }
     }
 }
-

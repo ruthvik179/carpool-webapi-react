@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CarpoolReact.ViewModels
 {
-    public class LoginViewModel
+    public class LoginRequest
     {
         [Required]
         [EmailAddress]

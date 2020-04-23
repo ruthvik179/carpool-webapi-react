@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CarpoolReact.ViewModels
 {
-    public class UserUpdateModel
+    public class UserUpdateRequest
     {
         public string Name { get; set; }
         public string PhoneNumber { get; set; }

@@ -51,10 +51,17 @@ export class RegisterDriver extends Component<MyProps, MyState> {
             "Authorization": "Bearer " + localStorage.authToken,
           },
           body: JSON.stringify(data),
-        })
-          .then(res => console.log(res))
-          .catch(err => console.log(err))
-          .then(()=>{history.push('/offer')});
+        }).then(res => res.json())
+          .then((res : any) => {
+            console.log(res)
+            if(res.error)
+            {
+              this.setState({
+                error : res.error
+              })
+            }
+          }
+          ).catch(err => console.log(err))
       }
     };
     validateRegistrationNumber = (registrationNumber : string) => {
@@ -98,7 +105,7 @@ export class RegisterDriver extends Component<MyProps, MyState> {
         error : ""
       }
         return (
-            <div className="register-driver">
+            <div className="register-driver bg">
                 <h1 className="main-heading" >Please register as a <span className="driver-text">Driver</span> to be able to <span className="offer-text">Offer</span> Rides</h1>
                 <RegisterDriverForm defaultValues={defaultValues} heading="Driver Registration" error={this.state.error}handleChange={this.handleChange} handleSubmit={this.handleSubmit}/>
             </div>

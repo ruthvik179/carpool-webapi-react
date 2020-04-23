@@ -49,6 +49,7 @@ namespace CarpoolReact
             services.AddScoped<IDriverService, DriverService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRiderService, RiderService>();
+            services.AddScoped<CarpoolContext, CarpoolContext>();
             services.AddDbContext<CarpoolContext>(options => options.UseSqlServer(connection));
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<CarpoolContext>()

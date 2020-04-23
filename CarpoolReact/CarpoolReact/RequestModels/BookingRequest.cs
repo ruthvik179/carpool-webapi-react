@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CarpoolReact.ViewModels
 {
-    public class BookingViewModel
+    public class BookingRequest
     {
         public bool Accepted { get; set; }
         public string Id { get; set; }

@@ -11,18 +11,17 @@ namespace CarpoolReact.Services
 {
     public class UserService : IUserService
     {
-        private readonly CarpoolContext context;
-        private IHelperService HelperService { get; set; }
-        private IDriverService driverService { get; set; }
+        private readonly CarpoolContext carpoolDb;
+        private IHelperService HelperService;
 
-        public UserService(CarpoolContext context)
+        public UserService(CarpoolContext carpoolDb)
         {
             HelperService = new HelperService();
-            this.context = context;
+            this.carpoolDb = carpoolDb;
         }
         public object GetDetails(ApplicationUser user)
         {
-            Driver driver = context.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
+            Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
             Car car;
              if(driver == null) 
             {
@@ -32,7 +31,7 @@ namespace CarpoolReact.Services
             }
             else
             {
-                car = context.Cars.FirstOrDefault(c => c.RegistrationNumber.Equals(driver.CarRegistrationNumber));
+                car = carpoolDb.Cars.FirstOrDefault(c => c.RegistrationNumber.Equals(driver.CarRegistrationNumber));
             }
             return new 
             { 
@@ -46,7 +45,7 @@ namespace CarpoolReact.Services
                 carYearOfManufacture = car.Year
             };
         }
-        public int Update(ApplicationUser user, UserUpdateModel model)
+        public int Update(ApplicationUser user, UserUpdateRequest model)
         {
             user.Name = model.Name;
             user.PhoneNumber = model.PhoneNumber;
@@ -54,8 +53,8 @@ namespace CarpoolReact.Services
             user.UserName = model.Email;
             user.NormalizedEmail = model.Email.ToUpper();
             user.NormalizedUserName = model.Email.ToUpper();
-            context.ApplicationUsers.Update(user);
-            context.SaveChanges();
+            carpoolDb.ApplicationUsers.Update(user);
+            carpoolDb.SaveChanges();
             return 200;
         }
     }

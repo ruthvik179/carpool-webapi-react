@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CarpoolReact.ViewModels
 {
-    public class RegisterDriverViewModel
+    public class RegisterDriverRequest
     {
         public string LicenseNo { get; set; }
         public string RegistrationNo { get; set; }

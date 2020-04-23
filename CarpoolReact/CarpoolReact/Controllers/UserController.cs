@@ -48,7 +48,7 @@ namespace CarpoolReact.Controllers
             return Ok(IUserService.GetDetails(user));
         }
         [HttpPut]
-        public IActionResult Update(UserUpdateModel model)
+        public IActionResult Update(UserUpdateRequest model)
         {
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));

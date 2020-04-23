@@ -24,19 +24,19 @@ function Timings(props : MyProps) {
                     <input type="radio" name="time"/>
                     5AM - 9AM
                 </label>
-                <label className="btn btn-default" onClick = {(e)=>props.handleChange(e)} defaultValue="9AM - 12PM">
+                <label className="btn btn-default" onClick = {(e)=>handleClick(e)} defaultValue="9AM - 12PM">
                     <input type="radio" name="time"/>
                     9AM - 12PM
                 </label>
-                <label className="btn btn-default" onClick = {(e)=>props.handleChange(e)} defaultValue="12PM- 3PM">
+                <label className="btn btn-default" onClick = {(e)=>handleClick(e)} defaultValue="12PM- 3PM">
                     <input type="radio" name="time"/>
                     12PM - 3PM
                 </label>
-                <label className="btn btn-default" onClick = {(e)=>props.handleChange(e)} defaultValue="3PM - 6PM">
+                <label className="btn btn-default" onClick = {(e)=>handleClick(e)} defaultValue="3PM - 6PM">
                     <input type="radio" name="time" />
                     3PM - 6PM
                 </label>
-                <label className="btn btn-default" onClick = {(e)=>props.handleChange(e)} defaultValue="6PM - 9PM">
+                <label className="btn btn-default" onClick = {(e)=>handleClick(e)} defaultValue="6PM - 9PM">
                     <input type="radio" name="time" />
                     6PM - 9PM
                 </label>

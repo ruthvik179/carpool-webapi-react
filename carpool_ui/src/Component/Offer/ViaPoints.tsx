@@ -27,7 +27,7 @@ function ViaPoints (props: MyProps) {
             </div>
             <div className="route-details">
                 <div>
-                    {props.error ? <p>{props.error}</p> : null}
+                    {props.error ? <p className="error">{props.error}</p> : null}
                 </div>
                 {props.values.viaPoints.map((val: { name: any; }, i: number) => {
                 return (

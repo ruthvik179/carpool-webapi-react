@@ -15,6 +15,7 @@ namespace CarpoolReact.Models
         public string Time { get; set; }
         public string SourceId { get; set; }
         public string DestinationId { get; set; }
+        public RideState RideState { get; set; }
         public Ride()
         {
 
@@ -27,6 +28,7 @@ namespace CarpoolReact.Models
             this.Time = time;
             this.SourceId = sourceId;
             this.DestinationId = destinationId;
+            this.RideState = RideState.Active;
         }
     }
 }

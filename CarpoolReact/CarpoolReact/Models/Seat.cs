@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace CarpoolReact.Models
 {
     public class Seat
     {
+        [Key]
         public string Id { get; set; }
         public SeatState SeatState { get; set; }
         public string RiderId { get; set; }

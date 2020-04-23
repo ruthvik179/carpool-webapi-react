@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CarpoolReact.ViewModels
 {
-    public class RequestViewModel
+    public class RideRquestModel
     {
         public Location Source { get; set; }
         public Location Destination { get; set; }

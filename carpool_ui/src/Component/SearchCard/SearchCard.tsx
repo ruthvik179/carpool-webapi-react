@@ -12,13 +12,17 @@ interface MyProps{
     id : string;
     distance? : number;
     handleClick? : (Id : string) => void;
-    handleRequest? :(Id : string) => void;
+    handleButton? :(Id : string) => void;
     status ?: string;
     type ?: string;
+    cancellationCharges ?: number;
 }
 function SearchResult(props : MyProps) {
+    const charges = props.cancellationCharges ? props.cancellationCharges : 0;
     var source_array = props.source.split(',');
     var destination_array = props.destination.split(',');
+    const status =  props.status !== "Cancelled" && props.status !== "Rejected" && props.status !=="Accepted" && props.type !== "offer";
+    var cancelled = charges > 0 ?  true :false ;
     return (
         <Card className="result-card" onClick={() => {
             if(props.handleClick)
@@ -26,16 +30,18 @@ function SearchResult(props : MyProps) {
                 props.handleClick(props.id)
             }           
         }}>
-            <Row className="result-header">
-                <Col xs="6" className="result-heading">
-                    <h1>{props.name}{
-                        props.status ? <Badge color="warning" pill>{props.status}</Badge> : null
-                    }</h1>
-                </Col>
-                <Col xs="6" className="profile-image">
-                    <img className="profile-image" src="https://www.searchpng.com/wp-content/uploads/2019/02/Men-Profile-Image-1024x941.png" alt="Profile"></img>
-                </Col>
-            </Row>
+            { props.type !== "offer" ?
+                <Row className="result-header">
+                    <Col xs="6" className="result-heading">
+                        <h1>{props.name}{
+                            props.status ? <Badge color="warning" pill>{props.status}</Badge> : null
+                        }</h1>
+                    </Col>
+                    <Col xs="6" className="profile-image">
+                        <img className="profile-image" src="https://www.searchpng.com/wp-content/uploads/2019/02/Men-Profile-Image-1024x941.png" alt="Profile"></img>
+                    </Col>
+                </Row> : null
+            }
             <Row>
                 <Col xs="3" className="result-column">
                     <p className="label">From</p>
@@ -52,7 +58,7 @@ function SearchResult(props : MyProps) {
             <Row>
                 <Col xs="7" className="result-column">
                     <p className="label">Date</p>
-                    <p>{props.date}</p>
+                    <p>{props.date.slice(0,10)}</p>
                 </Col>
                 <Col xs="5" className="result-column">
                     <p className="label">Time</p>
@@ -66,20 +72,26 @@ function SearchResult(props : MyProps) {
                         <p>₹{props.price}</p>
                     </Col> : null
                 }
-                {props.type == "offer" || props.type =="result" ?
+                {props.type === "offer" || props.type ==="result" ?
                     <Col xs="5" className="result-column">
                         <p className="label">Seat Availability</p>
                         <p>{props.seats}</p>
                     </Col> : null
                 }
+                {cancelled?
+                    <Col xs="5" className="result-column">
+                        <p className="label">Cancellation Charges</p>
+                        <p>{props.cancellationCharges}</p>
+                    </Col> : null
+                }
             </Row>
             <Row>
-                {props.type === "result" ? <button className="request-button" onClick = {() => {
-                    if(props.handleRequest)
+                {props.type === "result" || status ? <button className="request-button" onClick = {() => {
+                    if(props.handleButton)
                     {
-                        props.handleRequest(props.id)
+                        props.handleButton(props.id)
                     }      
-                }}> Request </button> : null}
+                }}>{props.type === "result" ? "Request" : "Cancel"}</button> : null}      
             </Row>
         </Card>
     );

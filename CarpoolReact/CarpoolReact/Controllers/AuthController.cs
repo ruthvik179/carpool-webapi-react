@@ -27,7 +27,7 @@ namespace CarpoolReact.Controllers
             this.userManager = userManager;
         }
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterRequest model)
         {
             if(!ModelState.IsValid)
             {
@@ -45,7 +45,7 @@ namespace CarpoolReact.Controllers
             var result = await userManager.CreateAsync(user, model.Password);
             if(result.Succeeded)
             {
-                LoginViewModel loginmodel = new LoginViewModel();
+                LoginRequest loginmodel = new LoginRequest();
                 loginmodel.Email = model.Email;
                 loginmodel.Password = model.Password;
                 return await Login(loginmodel);
@@ -57,7 +57,7 @@ namespace CarpoolReact.Controllers
             return BadRequest(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginRequest model)
         {
             if (!ModelState.IsValid)
             {

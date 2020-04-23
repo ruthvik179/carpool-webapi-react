@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import GeneratePage from "./GeneratePage";
 import history from './../../history'
+import { Alert } from "reactstrap";
+import { CSSTransition } from "react-transition-group";
 export interface viaPoints extends Array<any> { }
 interface MyProps{
 
@@ -15,6 +17,7 @@ interface MyState{
     time : string;
     error1 : string;
     error2 : string;
+    success : boolean;
 }
 export class OfferRide extends Component<MyProps, MyState> {
   constructor(props : MyProps) {
@@ -44,7 +47,8 @@ export class OfferRide extends Component<MyProps, MyState> {
       next: false,
       time: "",
       error1: "",
-      error2: ""
+      error2: "",
+      success: false
     };
   }
   next= () => {
@@ -159,7 +163,6 @@ export class OfferRide extends Component<MyProps, MyState> {
         Seats : this.state.seats
       };
 
-
       fetch(`https://localhost:44347/api/driver/createride`, {
         method: "Post",
         headers: {
@@ -170,13 +173,25 @@ export class OfferRide extends Component<MyProps, MyState> {
         body: JSON.stringify(data)
       })
         .then(res => console.log(res))
-        .catch(err => console.log(err))
-        .then(
-          ()=>{history.push("/rides");}
-        );
+        .then(() => {
+          this.setState({
+            success : true
+          })
+          setTimeout(() => {
+            this.setState({
+                success: false
+            })
+         }, 2000);
+        })
+        .catch(err => console.log(err));
+        // .then(
+        //   ()=>{history.push("/rides");}
+        // );
       }
   };
-  
+  alertTimeout = () =>{
+    
+  }
   render(){
     const values = {
       source : this.state.source,
@@ -188,21 +203,30 @@ export class OfferRide extends Component<MyProps, MyState> {
     } 
    
       return (
-        <>
-        <GeneratePage 
-        nextValue = {this.state.next}
-        next={this.next} 
-        values = {values} 
-        handleChange={this.handleChange} 
-        handlePlaceChange={this.handlePlaceChange} 
-        handleViaPointChange={this.handleViaPointChange}
-        addViaPoint={this.addViaPoint}
-        deleteViaPoint={this.deleteViaPoint}
-        handleSubmit={this.handleSubmit}
-        error1 = {this.state.error1}
-        error2 = {this.state.error2}
-        />
-        </>
+        <React.Fragment>
+          <CSSTransition
+          in={this.state.success}
+          timeout={350}
+          classNames="display"
+          unmountOnExit
+          >
+             <Alert id="alert" color="success">Ride has been offered succesfully</Alert> 
+          </CSSTransition>
+          
+          <GeneratePage 
+          nextValue = {this.state.next}
+          next={this.next} 
+          values = {values} 
+          handleChange={this.handleChange} 
+          handlePlaceChange={this.handlePlaceChange} 
+          handleViaPointChange={this.handleViaPointChange}
+          addViaPoint={this.addViaPoint}
+          deleteViaPoint={this.deleteViaPoint}
+          handleSubmit={this.handleSubmit}
+          error1 = {this.state.error1}
+          error2 = {this.state.error2}
+          />
+        </React.Fragment>
       );
 
   }

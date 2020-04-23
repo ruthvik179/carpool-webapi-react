@@ -19,20 +19,20 @@ function GeneratePage(props : MyProps) {
     const next = props.nextValue;
     if (!next) {
         return(
-        <Container fluid={true} className="offer">
-        <RideForm
-        Heading ={"Offer Ride"}
-        values={props.values}
-        handleChange={props.handleChange}
-        next={props.next}
-        handlePlaceChange={props.handlePlaceChange} 
-        error={props.error1}
-       />
-      </Container>
+        <Container fluid={true} className="offer bg">
+          <RideForm
+          Heading ={"Offer Ride"}
+          values={props.values}
+          handleChange={props.handleChange}
+          next={props.next}
+          handlePlaceChange={props.handlePlaceChange} 
+          error={props.error1}
+        />
+        </Container>
         )
       }
       return (
-        <Container fluid={true} className="offer">
+        <Container fluid={true} className="offer bg">
           <RideForm
           Heading ={"Offer Ride"}
           values={props.values}

@@ -27,7 +27,7 @@ function RideForm(props : MyProps) {
                 </div>
                 <div>
                     <div>
-                        {props.error ? <p>{props.error}</p> : null}
+                        {props.error ? <p className="error">{props.error}</p> : null}
                     </div>
                     <Route
                     handlePlaceChange = {props.handlePlaceChange}
