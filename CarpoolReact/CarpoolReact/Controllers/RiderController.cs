@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using CarpoolReact.Data;
-using CarpoolReact.Models;
-using CarpoolReact.Interfaces;
-using CarpoolReact.ViewModels;
+using Carpool.Concerns;
+using Carpool.Data;
+using Carpool.Interfaces;
+using Carpool.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using CarpoolReact.ResponseModels;
 
-namespace CarpoolReact.Controllers
+namespace Carpool.Controllers
 {
     [Route("api/[controller]/[Action]")]
     [ApiController]

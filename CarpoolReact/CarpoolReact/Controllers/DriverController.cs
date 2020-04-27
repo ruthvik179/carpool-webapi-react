@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using CarpoolReact.Data;
-using CarpoolReact.Interfaces;
-using CarpoolReact.Models;
-using CarpoolReact.ViewModels;
-using CarpoolReact.Services;
+using Carpool.Data;
+using Carpool.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using System.IdentityModel.Tokens.Jwt;
-using CarpoolReact.ResponseModels;
+using Carpool.Interfaces;
+using Carpool.Concerns;
 
-namespace CarpoolReact.Controllers
+namespace Carpool.Controllers
 {
     
     [Route("api/[controller]/[Action]")]

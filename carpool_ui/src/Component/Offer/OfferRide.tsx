@@ -3,6 +3,7 @@ import GeneratePage from "./GeneratePage";
 import history from './../../history'
 import { Alert } from "reactstrap";
 import { CSSTransition } from "react-transition-group";
+import { post } from "../../Services/api";
 export interface viaPoints extends Array<any> { }
 interface MyProps{
 
@@ -163,15 +164,7 @@ export class OfferRide extends Component<MyProps, MyState> {
         Seats : this.state.seats
       };
 
-      fetch(`https://localhost:44347/api/driver/createride`, {
-        method: "Post",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.authToken,
-        },
-        body: JSON.stringify(data)
-      })
+      post(`https://localhost:44347/api/driver/createride`, data)
         .then(res => console.log(res))
         .then(() => {
           this.setState({
@@ -184,9 +177,6 @@ export class OfferRide extends Component<MyProps, MyState> {
          }, 2000);
         })
         .catch(err => console.log(err));
-        // .then(
-        //   ()=>{history.push("/rides");}
-        // );
       }
   };
   alertTimeout = () =>{

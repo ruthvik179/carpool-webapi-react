@@ -3,6 +3,9 @@ import SignupForm from './../Signup/SignupForm'
 import { Col, Alert } from 'reactstrap';
 import RegisterDriverForm from '../RegisterDriver/RegisterDriverForm';
 import { CSSTransition } from 'react-transition-group';
+import { put, get } from '../../Services/api';
+import { updateDetails } from '../../Interfaces/updateDetails';
+import { driver } from '../../Interfaces/driver';
 
 interface MyState{
     name : string;
@@ -15,23 +18,11 @@ interface MyState{
     carYearOfManufacture : string,
     errorDetails : string;
     errorDriver : string;
-    defaultDetailsValues : details;
+    defaultDetailsValues : updateDetails;
     defaultDriverValues : driver;
     isADriver : boolean;
     success : boolean;
     alert : string;
-}
-interface details{
-name : string;
-phoneNumber : string;
-email : string;
-}
-interface driver{
-    license : string,
-    registrationNumber : string,
-    carManufacturer : string,
-    carModel : string,
-    carYearOfManufacture : string,
 }
 export class EditProfile extends Component <{},MyState>{
     constructor(props) {
@@ -65,14 +56,7 @@ export class EditProfile extends Component <{},MyState>{
         }
     }
     componentDidMount(){
-        fetch('https://localhost:44347/api/user/getdetails', {
-                method: 'GET',
-                headers :{
-                    "Content-Type" : "application/json",
-                    "Accept" : "application/json",
-                    "Authorization": "Bearer " + localStorage.authToken,
-                },
-            }).then(res => res.json())
+        get('https://localhost:44347/api/user/getdetails')
               .then(res => {
               console.log(res);
               this.setState({
@@ -121,15 +105,7 @@ export class EditProfile extends Component <{},MyState>{
               Email : this.state.email
             }
   
-            fetch('https://localhost:44347/api/user/update', {
-                method: 'PUT',
-                headers :{
-                    "Content-Type" : "application/json",
-                    "Accept" : "application/json",
-                    "Authorization": "Bearer " + localStorage.authToken,
-                },
-                body: JSON.stringify(data),
-            }).then(res => res.json())
+            put('https://localhost:44347/api/user/update', data)
               .then(res => {
               console.log(res);
               if (res.token) {
@@ -194,15 +170,7 @@ export class EditProfile extends Component <{},MyState>{
             YearOfManufacture : this.state.carYearOfManufacture,
             };
         
-            fetch(`https://localhost:44347/api/driver/update/`, {
-            method: "PUT",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.authToken,
-            },
-            body: JSON.stringify(data),
-            })
+            put(`https://localhost:44347/api/driver/update/`, data)
             .then(res => console.log(res))
             .then(() => {
                 this.setState({

@@ -1,20 +1,15 @@
 import React from 'react';
 import { Col } from 'reactstrap';
+import { userDetails } from '../../Interfaces/userDetails';
 interface MyProps{
     handleSubmit : (e: { preventDefault: () => void; }) => void
     heading : string
     error : string
     handleChange : (event: { target: { name: any; value: any; }; } ) => void
-    defaultValues : values
+    defaultValues : userDetails
     signup : boolean
 }
-interface values{
-    name : string;
-    phoneNumber : string;
-    email : string;
-    password ?: string;
-    confirmPassword ?: string;
-  }
+
 function SignupForm(props : MyProps) {
     return (
         <Col className="overlay-signup" xs="4">

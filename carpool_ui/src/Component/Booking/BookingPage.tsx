@@ -5,31 +5,23 @@ import RideForm from './../RideForm/RideForm'
 import './../../Styles/style.scss';
 import SearchResult from "./../SearchCard/SearchCard"
 import { CSSTransition } from 'react-transition-group';
+import { post } from '../../Services/api';
+import { matches } from '../../Interfaces/matches';
+import { match } from '../../Interfaces/match';
 interface MyProps{
   
 }
-export interface Matches extends Array<values> { }
 interface MyState{
     source : any;
     destination : any;
     date : string;
     time : string;
-    searchResults : Matches;
+    searchResults : matches;
     error: string,
     distance : number,
     success : boolean;
 }
-interface values{
-  name : string;
-  source : string;
-  destination: string;
-  date : string;
-  time : string;
-  price : number;
-  distance : number;
-  seatCount : number;
-  id : string;
-}
+
 export class Book extends Component<MyProps, MyState> {
     constructor(props: MyProps){
         super(props)
@@ -52,13 +44,6 @@ export class Book extends Component<MyProps, MyState> {
             success : false,
         }
     }
-    // initMap =(srcLat, srcLng, dstLat, dstLng) => {
-    //   const srcLocation = new google.maps.LatLng(srcLat, srcLng);
-    //   const dstLocation = new google.maps.LatLng(dstLat, dstLng);
-    //   var distance = google.maps.geometry.spherical.computeDistanceBetween(srcLocation, dstLocation)
-    //   console.log(distance/1000); // Distance in Kms.
-    //   return distance/1000;
-    // }
     handleChange = (event: { target: { name: any; value: any; }; } , ): void => {
         const key = event.target.name;
         const value = event.target.value;
@@ -99,7 +84,7 @@ export class Book extends Component<MyProps, MyState> {
       else{
           var srcLocation = new google.maps.LatLng(this.state.source.lat, this.state.source.lng);
           var dstLocation = new google.maps.LatLng(this.state.destination.lat, this.state.destination.lng);
-          var distance = google.maps.geometry.spherical.computeDistanceBetween(srcLocation, dstLocation)
+          var distance = google.maps.geometry.spherical.computeDistanceBetween(srcLocation, dstLocation);
           console.log(distance/1000)
           distance = +distance.toFixed(2);
           this.setState({
@@ -122,16 +107,7 @@ export class Book extends Component<MyProps, MyState> {
             Distance : distance/1000
           };
           console.log(JSON.stringify(data));
-        fetch(`https://localhost:44347/api/rider/getridematches`, {
-          method: "POST",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.authToken,
-          },
-          body: JSON.stringify(data)
-        })
-          .then(res => res.json())
+        post(`https://localhost:44347/api/rider/getridematches`, data)
           .then(
             (res) => {
               this.setState({
@@ -142,7 +118,7 @@ export class Book extends Component<MyProps, MyState> {
           .catch(err => console.log(err));
       }
     };
-    handleRequest = (Id : string) => {
+    handleRequest = (id : string) => {
       const data = {
         Source: {
           Name: this.state.source.name,
@@ -157,19 +133,10 @@ export class Book extends Component<MyProps, MyState> {
         Date: this.state.date,
         Time : this.state.time,
         Distance : this.state.distance,
-        RideId : Id
+        RideId : id
       };
       console.log(data);
-      fetch(`https://localhost:44347/api/rider/requestride`,{
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.authToken,
-        },
-        body: JSON.stringify(data)
-      })
-      .then(res => res.json())
+      post(`https://localhost:44347/api/rider/requestride`, id)
       .then(res => console.log(res))
       .then(() => {
         this.setState({
@@ -215,7 +182,7 @@ export class Book extends Component<MyProps, MyState> {
                     <h1>Your Matches!</h1>
                 </div>
                 {this.state.searchResults ? 
-                this.state.searchResults.map((val: values, i: number) => {
+                this.state.searchResults.map((val: match, i: number) => {
                  return(
                   <SearchResult 
                   name={val.name} 

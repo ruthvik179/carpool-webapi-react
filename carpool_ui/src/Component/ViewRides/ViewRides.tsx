@@ -2,41 +2,19 @@ import React, { Component } from 'react';
 import SearchResult from '../SearchCard/SearchCard';
 import Popup from './Popup'
 import { Alert, Collapse } from 'reactstrap';
-import { stringify } from 'querystring';
 import { CSSTransition } from 'react-transition-group';
-interface values{
-    name : string;
-    source : string;
-    destination: string;
-    date : string;
-    time : string;
-    price ?: number;
-    distance ?: number;
-    seatCount : number;
-    id : string;
-    status ?: string;
-    cancellationCharges? : number;
-  }
-export interface MyInterface extends Array<values> { }
-export interface array extends Array<any> { }
-interface ride{
-  id : string;
-  name : string;
-  source : string;
-  destination : string;
-  time : string; 
-  date : string;
-  seatCount : number; 
-  bookingCount: number;  
-  requestCount: number;  
-}
+import {post, get} from './../../Services/api'
+import { rideValues } from '../../Interfaces/rideValues';
+import { rideDetails } from '../../Interfaces/rideDetails';
+import { bookings_requests } from '../../Interfaces/bookings_requests';
+import { rideValue } from '../../Interfaces/rideValue';
   interface MyState{
-      OfferRides : MyInterface;
-      BookedRides : MyInterface;
-      RideRequests : MyInterface;
-      bookings : array;
-      requests : array;
-      ride : ride;
+      OfferRides : rideValues;
+      BookedRides : rideValues;
+      RideRequests : rideValues;
+      bookings : bookings_requests;
+      requests : bookings_requests;
+      ride : rideDetails;
       showPopup : boolean;
       success : boolean;
       failure : boolean;
@@ -82,15 +60,7 @@ export class ViewRides extends Component<{},MyState> {
         this.GetBookedRides();
     }
     GetRideRequests(){
-        fetch(`https://localhost:44347/api/rider/getrequests`, {
-          method: "GET",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.authToken,
-          }
-        })
-          .then(res => res.json())
+        get(`https://localhost:44347/api/rider/getrequests`)
           .then(
             (res) => {
               this.setState({
@@ -101,15 +71,7 @@ export class ViewRides extends Component<{},MyState> {
           .catch(err => console.log(err));
     }
     GetOfferRides(){
-        fetch(`https://localhost:44347/api/driver/getrides`, {
-          method: "GET",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.authToken,
-          }
-        })
-          .then(res => res.json())
+        get(`https://localhost:44347/api/driver/getrides`)
           .then(
             (res) => {
               this.setState({
@@ -120,15 +82,7 @@ export class ViewRides extends Component<{},MyState> {
           .catch(err => console.log(err));
     }
     GetBookedRides(){
-        fetch(`https://localhost:44347/api/rider/getbookings`, {
-          method: "GET",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.authToken,
-          }
-        })
-          .then(res => res.json())
+        get(`https://localhost:44347/api/rider/getbookings`)
           .then(
             (res) => {
               this.setState({
@@ -148,15 +102,7 @@ export class ViewRides extends Component<{},MyState> {
       this.setState({
         showPopup: true
       });
-      fetch(`https://localhost:44347/api/driver/getridedetails?rideId=${Id}`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.authToken,
-        },
-      })
-        .then((res) => res.json())
+      get(`https://localhost:44347/api/driver/getridedetails?rideId=${Id}`)
         .then((res) =>
           this.setState({
             bookings: res.bookings,
@@ -165,22 +111,12 @@ export class ViewRides extends Component<{},MyState> {
           })
         ).then(res => console.log(res))
         .catch((err) => console.log(err));
-        
     }
     handleCancelRide = (id : string) => {
       this.setState({
         showPopup: false
       });
-      fetch(`https://localhost:44347/api/driver/cancelride`, {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.authToken,
-        },
-        body: JSON.stringify(id)
-      })
-        .then(res => res.json())
+       post(`https://localhost:44347/api/driver/cancelride`, id )
         .then(res =>{
           console.log(res)
           if(res.message){
@@ -209,16 +145,7 @@ export class ViewRides extends Component<{},MyState> {
         .catch(err => console.log(err));
     }
     handleCancelRequest = (id : string) => {
-      fetch(`https://localhost:44347/api/rider/cancelrequest`, {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.authToken,
-        },
-        body: JSON.stringify(id)
-      })
-        .then((res) => res.json())
+      post(`https://localhost:44347/api/rider/cancelrequest`, id)
         .then(res =>console.log(res))
         .then((res : any) => {
           if(res.message){
@@ -248,16 +175,7 @@ export class ViewRides extends Component<{},MyState> {
 
     }
     handleCancelBooking = (id : string) => {
-      fetch(`https://localhost:44347/api/rider/cancelbooking`, {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.authToken,
-        },
-        body: JSON.stringify(id)
-      })
-        .then(res => res.json())
+      post(`https://localhost:44347/api/rider/cancelbooking`, id)
         .then((res) => {
           if(res.message){
             this.setState({
@@ -289,7 +207,18 @@ export class ViewRides extends Component<{},MyState> {
           this.setState({[key]: !value } as unknown as Pick<MyState, keyof MyState>);
         }
     }
-    
+    showPopup = () => {
+      return ( 
+      <Popup 
+        cancelRide={this.handleCancelRide} 
+        ride={this.state.ride} 
+        bookings={this.state.bookings} 
+        requests={this.state.requests} 
+        text={"Test"} 
+        closePopup={this.handleClose}
+        />
+        )
+    }
     render() {
         return (
           <React.Fragment>
@@ -305,7 +234,7 @@ export class ViewRides extends Component<{},MyState> {
               <div className="ride offered-rides">
                   <button onClick={() => this.toggle("isOfferedRidesOpen", this.state.isOfferedRidesOpen)} className="heading">Offered Rides</button>
                   <Collapse isOpen={this.state.isOfferedRidesOpen}>
-                    {this.state.OfferRides.map((val: values, i: number) => {
+                    {this.state.OfferRides.map((val: rideValue, i: number) => {
                     return(
                     <SearchResult 
                     name={val.name} 
@@ -325,7 +254,7 @@ export class ViewRides extends Component<{},MyState> {
               <div className="ride booked-rides">
                   <button onClick={() => this.toggle("isBookedRidesOpen", this.state.isBookedRidesOpen)} className="heading">Booked Rides</button>
                   <Collapse isOpen={this.state.isBookedRidesOpen}>
-                    {this.state.BookedRides.map((val: values, i: number) => {
+                    {this.state.BookedRides.map((val: rideValue, i: number) => {
                     return(
                     <SearchResult 
                     name={val.name} 
@@ -340,6 +269,8 @@ export class ViewRides extends Component<{},MyState> {
                     status={val.status}
                     handleButton = {this.handleCancelBooking}
                     cancellationCharges ={val.cancellationCharges}
+                    sgst = {val.sgst}
+                    cgst = {val.cgst}
                     />
                     )})}
                   </Collapse>               
@@ -347,7 +278,7 @@ export class ViewRides extends Component<{},MyState> {
               <div className="ride requested-rides">
                 <button onClick={() => this.toggle("isRequestedRidesOpen", this.state.isRequestedRidesOpen)} className="heading">Requested Rides</button>
                   <Collapse isOpen={this.state.isRequestedRidesOpen}>
-                    {this.state.RideRequests.map((val: values, i: number) => {
+                    {this.state.RideRequests.map((val: rideValue, i: number) => {
                     return(
                     <SearchResult 
                     name={val.name} 
@@ -365,17 +296,7 @@ export class ViewRides extends Component<{},MyState> {
                     )})} 
                   </Collapse>               
               </div> 
-              {this.state.showPopup ? 
-                <Popup 
-                cancelRide={this.handleCancelRide} 
-                ride={this.state.ride} 
-                bookings={this.state.bookings} 
-                requests={this.state.requests} 
-                text={"Test"} 
-                closePopup={this.handleClose}
-                />
-                : null
-              } 
+              {this.state.showPopup ?this.showPopup() : null} 
           </div>
           {this.state.success ? <Alert id="alert" color="success">{this.state.alert}</Alert> : null}
         </React.Fragment>

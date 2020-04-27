@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import './../../Styles/style.scss';
 import { Redirect } from 'react-router';
 import SignupForm from './SignupForm'
+import { postWithoutAuth } from '../../Services/api';
   interface MyState{
     name : string;
     phoneNumber : string;
@@ -49,14 +50,7 @@ import SignupForm from './SignupForm'
             ConfirmPassword : this.state.confirmPassword
           }
 
-          fetch('https://localhost:44347/api/auth/register', {
-              method: 'POST',
-              headers :{
-                  "Content-Type" : "application/json",
-                  "Accept" : "application/json"
-              },
-              body: JSON.stringify(data),
-          }).then(res => res.json())
+          postWithoutAuth('https://localhost:44347/api/auth/register', data)
             .then(res => {
             console.log(res);
             if(res.error)

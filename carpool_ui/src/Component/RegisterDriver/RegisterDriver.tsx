@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import RegisterDriverForm from './RegisterDriverForm'
 import history from './../../history'
+import { post } from '../../Services/api';
 interface MyState{
     license : string,
     registrationNumber : string,
@@ -43,15 +44,7 @@ export class RegisterDriver extends Component<MyProps, MyState> {
           YearOfManufacture : this.state.carYearOfManufacture,
         };
     
-        fetch(`https://localhost:44347/api/driver/RegisterDriver/`, {
-          method: "POST",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.authToken,
-          },
-          body: JSON.stringify(data),
-        }).then(res => res.json())
+        post(`https://localhost:44347/api/driver/RegisterDriver/`, data)
           .then((res : any) => {
             console.log(res)
             if(res.error)

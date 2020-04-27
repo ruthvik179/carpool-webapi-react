@@ -2,6 +2,7 @@ import React from 'react';
 import {Row, Col} from 'reactstrap';
 import './../../Styles/style.scss';
 import history from './../../history'
+import { get } from '../../Services/api';
 function Home(props : any) {
     const user = JSON.parse(localStorage.user);
     const redirect = (loc : string) => {
@@ -29,15 +30,7 @@ function Home(props : any) {
                         className="btn btn-primary button-offer" 
                         onClick = {
                             () =>{
-                                fetch(`https://localhost:44347/api/driver/isadriver`, {
-                                    method: "GET",
-                                    headers: {
-                                    "Accept": "application/json",
-                                    "Content-Type": "application/json",
-                                    "Authorization": "Bearer " + localStorage.authToken,
-                                    }
-                                })
-                                    .then(res => res.json())
+                                get(`https://localhost:44347/api/driver/isadriver`)
                                     .then(
                                     (res ) => {
                                         console.log(res);

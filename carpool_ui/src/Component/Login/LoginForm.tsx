@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Col } from 'reactstrap';
 import './../../Styles/style.scss';
 import { Redirect } from 'react-router';
+import {postWithoutAuth} from './../../Services/api'
 
 interface MyProps{
   login : () => void
@@ -16,14 +17,7 @@ export default function Loginform (this: any,props : MyProps) {
       Email : email,
       Password : password,
     }
-    fetch('https://localhost:44347/api/auth/Login', {
-      method: 'POST',
-      headers :{
-        "Content-Type" : "application/json",
-        "Accept" : "application/json",
-      },
-      body: JSON.stringify(data),
-    }).then(res => res.json())
+    postWithoutAuth('https://localhost:44347/api/auth/Login', data)
     .then(res => {
     console.log(res);
     if(!res.status)

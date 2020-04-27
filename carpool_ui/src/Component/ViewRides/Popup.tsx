@@ -3,24 +3,16 @@ import { Card, Container, Row, Col } from 'reactstrap';
 import Bookings from './Bookings';
 import Requests from './Requests';
 import history from './../../history'
-export interface array extends Array<any> { }
-interface ride{
-  id : string;
-  name : string;
-  source : string;
-  destination : string;
-  time : string; 
-  date : string;
-  seatCount : number; 
-  bookingCount: number;  
-  requestCount: number;  
-}
+import {post, get} from './../../Services/api'
+import { rideDetails } from '../../Interfaces/rideDetails';
+import { bookings_requests } from '../../Interfaces/bookings_requests';
+
 interface MyProps{
   text : string;
   closePopup : () => void;
-  bookings : array;
-  requests : array;
-  ride : ride;
+  bookings : bookings_requests;
+  requests : bookings_requests;
+  ride : rideDetails;
   cancelRide : (id : string) => void;
 }
 interface MyState{
@@ -40,32 +32,14 @@ class Popup extends React.Component<MyProps, MyState>{
         Id : id
       }
       this.props.closePopup();
-      fetch(`https://localhost:44347/api/driver/confirmbooking`, {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.authToken,
-        },
-        body: JSON.stringify(data)
-      })
-        .then(res => res.json())
+      post(`https://localhost:44347/api/driver/confirmbooking`, data)
         .then(res =>console.log(res))
         .catch(err => console.log(err));
     }
     handleCancel = (id : string) =>{
       console.log(id);
       this.props.closePopup();
-      fetch(`https://localhost:44347/api/driver/cancelbooking`, {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.authToken,
-        },
-        body: JSON.stringify(id)
-      })
-        .then(res => res.json())
+      post(`https://localhost:44347/api/driver/cancelbooking`, id)
         .then(res =>console.log(res))
         .catch(err => console.log(err));
     }

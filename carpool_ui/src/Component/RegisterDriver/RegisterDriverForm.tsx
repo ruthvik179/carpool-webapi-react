@@ -1,18 +1,12 @@
 import React from 'react';
 import { Card } from 'reactstrap';
+import { driver } from '../../Interfaces/driver';
 interface MyProps{
     handleChange : (event: { target: { name: any; value: any;};} ) => void
     handleSubmit : (e: { preventDefault: () => void; }) => void
     error : string
     heading : string
-    defaultValues : values
-}
-interface values{
-    license : string
-    registrationNumber : string
-    carManufacturer : string
-    carModel : string
-    carYearOfManufacture : string
+    defaultValues : driver
 }
 function RegisterDriverForm(props : MyProps) {
     
