@@ -3,18 +3,22 @@ import SearchResult from '../SearchCard/SearchCard';
 import Popup from './Popup'
 import { Alert, Collapse } from 'reactstrap';
 import { CSSTransition } from 'react-transition-group';
-import {post, get} from './../../Services/api'
-import { rideValues } from '../../Interfaces/rideValues';
-import { rideDetails } from '../../Interfaces/rideDetails';
-import { bookings_requests } from '../../Interfaces/bookings_requests';
-import { rideValue } from '../../Interfaces/rideValue';
+import { RideDetails } from '../../Interfaces/ViewRides/RideDetails';
+import { RideValue } from '../../Interfaces/ViewRides/RideValue';
+import { BookingRequest } from '../../Interfaces/ViewRides/BookingRequest';
+import { ApiConnection } from '../../Services/ApiConnection'
+import { Urls } from '../../Constants/Urls';
+var api = new ApiConnection();
+var urls = new Urls();
+export interface BookingsRequests extends Array<BookingRequest> { }
+export interface RideValues extends Array<RideValue> { }
   interface MyState{
-      OfferRides : rideValues;
-      BookedRides : rideValues;
-      RideRequests : rideValues;
-      bookings : bookings_requests;
-      requests : bookings_requests;
-      ride : rideDetails;
+      OfferRides : RideValues;
+      BookedRides : RideValues;
+      RideRequests : RideValues;
+      bookings : BookingsRequests;
+      requests : BookingsRequests;
+      ride : RideDetails;
       showPopup : boolean;
       success : boolean;
       failure : boolean;
@@ -60,7 +64,7 @@ export class ViewRides extends Component<{},MyState> {
         this.GetBookedRides();
     }
     GetRideRequests(){
-        get(`https://localhost:44347/api/rider/getrequests`)
+        api.get(urls.GetRideRequests)
           .then(
             (res) => {
               this.setState({
@@ -71,7 +75,7 @@ export class ViewRides extends Component<{},MyState> {
           .catch(err => console.log(err));
     }
     GetOfferRides(){
-        get(`https://localhost:44347/api/driver/getrides`)
+        api.get(urls.GetOfferRides)
           .then(
             (res) => {
               this.setState({
@@ -82,7 +86,7 @@ export class ViewRides extends Component<{},MyState> {
           .catch(err => console.log(err));
     }
     GetBookedRides(){
-        get(`https://localhost:44347/api/rider/getbookings`)
+        api.get(urls.GetBookings)
           .then(
             (res) => {
               this.setState({
@@ -97,12 +101,12 @@ export class ViewRides extends Component<{},MyState> {
         showPopup: false
       });
     }
-    handleClick = (Id : string) => {
-      console.log(Id);
+    handleClick = (id : string) => {
+      console.log(id);
       this.setState({
         showPopup: true
       });
-      get(`https://localhost:44347/api/driver/getridedetails?rideId=${Id}`)
+      api.get(`${urls.GetRideDetails}${id}`)
         .then((res) =>
           this.setState({
             bookings: res.bookings,
@@ -116,10 +120,70 @@ export class ViewRides extends Component<{},MyState> {
       this.setState({
         showPopup: false
       });
-       post(`https://localhost:44347/api/driver/cancelride`, id )
+       api.post(urls.CancelRide, id )
         .then(res =>{
-          console.log(res)
-          if(res.message){
+          this.GetOfferRides();
+          if(res.status === 200){
+            this.setState({
+                success : true,
+                alert : res.message
+            })
+            setTimeout(() => {
+              this.setState({
+                  success: false
+              })
+            }, 2000);
+            this.GetOfferRides();
+          }
+          else{
+            this.setState({
+              failure : true,
+              alert : res.error
+            })
+            setTimeout(() => {
+              this.setState({
+                  failure: false,
+              })
+            }, 2000);
+          }
+        })
+        .catch(err => console.log(err));
+    }
+    handleCancelRequest = (id : string) => {
+      api.post(urls.CancelRequest, id)
+        .then(res => {
+          if(res.status === 200){
+            this.GetRideRequests();
+            this.setState({
+                success : true,
+                alert : res.message
+            })
+            setTimeout(() => {
+              this.setState({
+                  success: false
+              })
+            }, 2000);          
+          }
+          else{
+            this.setState({
+              failure : true,
+              alert : res.error
+            })
+            setTimeout(() => {
+              this.setState({
+                  failure: false,
+              })
+            }, 2000);
+          }
+        })
+        .catch(err => console.log(err));
+
+    }
+    handleCancelBooking = (id : string) => {
+      api.post(urls.CancelBookingRider, id)
+        .then(res => {
+          if(res.status === 200){
+            this.GetBookedRides();
             this.setState({
                 success : true,
                 alert : res.message
@@ -133,65 +197,7 @@ export class ViewRides extends Component<{},MyState> {
           else{
             this.setState({
               failure : true,
-              alert : "res.error"
-            })
-            setTimeout(() => {
-              this.setState({
-                  failure: false,
-              })
-            }, 2000);
-          }
-        })
-        .catch(err => console.log(err));
-    }
-    handleCancelRequest = (id : string) => {
-      post(`https://localhost:44347/api/rider/cancelrequest`, id)
-        .then(res =>console.log(res))
-        .then((res : any) => {
-          if(res.message){
-            this.setState({
-                success : true,
-                alert : "res.message"
-            })
-            setTimeout(() => {
-              this.setState({
-                  success: false
-              })
-            }, 2000);
-          }
-          else{
-            this.setState({
-              failure : true,
-              alert : "res.error"
-            })
-            setTimeout(() => {
-              this.setState({
-                  failure: false,
-              })
-            }, 2000);
-          }
-        })
-        .catch(err => console.log(err));
-
-    }
-    handleCancelBooking = (id : string) => {
-      post(`https://localhost:44347/api/rider/cancelbooking`, id)
-        .then((res) => {
-          if(res.message){
-            this.setState({
-                success : true,
-                alert : "res.message"
-            })
-            setTimeout(() => {
-              this.setState({
-                  success: false
-              })
-            }, 2000);
-          }
-          else{
-            this.setState({
-              failure : true,
-              alert : "res.error"
+              alert : res.error
             })
             setTimeout(() => {
               this.setState({
@@ -234,7 +240,7 @@ export class ViewRides extends Component<{},MyState> {
               <div className="ride offered-rides">
                   <button onClick={() => this.toggle("isOfferedRidesOpen", this.state.isOfferedRidesOpen)} className="heading">Offered Rides</button>
                   <Collapse isOpen={this.state.isOfferedRidesOpen}>
-                    {this.state.OfferRides.map((val: rideValue, i: number) => {
+                    {this.state.OfferRides.map((val: RideValue, i: number) => {
                     return(
                     <SearchResult 
                     name={val.name} 
@@ -254,7 +260,7 @@ export class ViewRides extends Component<{},MyState> {
               <div className="ride booked-rides">
                   <button onClick={() => this.toggle("isBookedRidesOpen", this.state.isBookedRidesOpen)} className="heading">Booked Rides</button>
                   <Collapse isOpen={this.state.isBookedRidesOpen}>
-                    {this.state.BookedRides.map((val: rideValue, i: number) => {
+                    {this.state.BookedRides.map((val: RideValue, i: number) => {
                     return(
                     <SearchResult 
                     name={val.name} 
@@ -278,7 +284,7 @@ export class ViewRides extends Component<{},MyState> {
               <div className="ride requested-rides">
                 <button onClick={() => this.toggle("isRequestedRidesOpen", this.state.isRequestedRidesOpen)} className="heading">Requested Rides</button>
                   <Collapse isOpen={this.state.isRequestedRidesOpen}>
-                    {this.state.RideRequests.map((val: rideValue, i: number) => {
+                    {this.state.RideRequests.map((val: RideValue, i: number) => {
                     return(
                     <SearchResult 
                     name={val.name} 

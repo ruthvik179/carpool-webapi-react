@@ -38,8 +38,18 @@ namespace Carpool.Controllers
             }
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            int code = IDriverService.CreateRide(model, user);
-            return StatusCode(code);
+            string result = IDriverService.CreateRide(model, user);
+            if (result == "Ok")
+            {
+                return Ok(new { 
+                    status = 200,
+                    message = "Ride Created Successfully."
+                });
+            }
+            return BadRequest(new
+            {
+                error = result
+            });
         }
         [HttpPost]
         public IActionResult RegisterDriver([FromBody] RegisterDriverRequest model )
@@ -53,7 +63,11 @@ namespace Carpool.Controllers
             string result = IDriverService.RegisterDriver(model, user);
             if(result =="Ok")
             {
-                return Ok();
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Driver Registered Succesfully."
+                });
             }
             return BadRequest(new
             {
@@ -81,8 +95,19 @@ namespace Carpool.Controllers
             }
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            int code = IDriverService.ConfirmBooking(user, model);
-            return StatusCode(code);
+            string result = IDriverService.ConfirmBooking(user, model);
+            if (result == "Ok")
+            {
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Booking Confirmed"
+                });
+            }
+            return BadRequest(new
+            {
+                error = result
+            });
         }
         [HttpPost]
         public IActionResult CancelBooking([FromBody]string id)
@@ -93,8 +118,19 @@ namespace Carpool.Controllers
             }
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            int code = IDriverService.CancelBooking(user, id);
-            return StatusCode(code);
+            string result = IDriverService.CancelBooking(user, id);
+            if (result == "Ok")
+            {
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Booking Cancelled"
+                });
+            }
+            return BadRequest(new
+            {
+                error = result
+            });
         }
         [HttpGet]
         public IActionResult IsADriver()
@@ -139,6 +175,7 @@ namespace Carpool.Controllers
             {
                 return Ok(new
                 {
+                    status = 200,
                     message = "Booking Cancelled Successfully."
                 });
             }

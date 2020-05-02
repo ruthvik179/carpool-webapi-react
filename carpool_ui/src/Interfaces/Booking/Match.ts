@@ -1,4 +1,4 @@
-export interface match{
+export interface Match{
     name : string;
     source : string;
     destination: string;

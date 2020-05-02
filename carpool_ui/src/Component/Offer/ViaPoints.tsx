@@ -39,22 +39,18 @@ function ViaPoints (props: MyProps) {
                             value={val.name}
                             onChange={(e: { target: { value: any; }; }) => {
                                 const coordinates = {
-                                formatted_address: e.target.value,
-                                geometry: {
-                                    location: {
-                                    lat: function() {
-                                        return 0;
-                                    },
-                                    lng: function() {
-                                        return 0;
+                                    formatted_address: e.target.value,
+                                    geometry: {
+                                        location: {
+                                        lat: function() {return 0},
+                                        lng: function() {return 0}
+                                        }
                                     }
-                                    }
-                                }
                                 };
                                 props.handleViaPointChange(coordinates, i);
                             }}
-                            onPlaceSelected={(coordinates: any) => {
-                                props.handleViaPointChange(coordinates, i);
+                            onPlaceSelected={(place: { formatted_address: any; geometry: { location: { lat: () => number; lng: () => number; }; }; place_id : string; }) => {
+                                props.handleViaPointChange(place, i);
                             }}
                             types={["(cities)"]}
                             componentRestrictions={{ country: "in" }}

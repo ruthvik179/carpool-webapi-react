@@ -7,8 +7,7 @@ export default function Location(props: { value: any; handlePlaceChange: (arg0: 
       <Autocomplete
         className="form-control form-control-sm"
         value={props.value}
-        onPlaceSelected={(place: { formatted_address: any; geometry: { location: { lat: () => number; lng: () => number; }; }; }) => {
-            console.log(place)
+        onPlaceSelected={(place: { formatted_address: any; geometry: { location: { lat: () => number; lng: () => number; }; }; place_id : string; }) => {
             props.handlePlaceChange(props.for, place);
         }}
         types={["(cities)"]}

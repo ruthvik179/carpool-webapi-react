@@ -1,4 +1,4 @@
-export interface driver{
+export interface Driver{
     license : string,
     registrationNumber : string,
     carManufacturer : string,

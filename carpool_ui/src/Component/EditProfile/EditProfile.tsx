@@ -1,12 +1,18 @@
 import React, { Component } from 'react'
-import SignupForm from './../Signup/SignupForm'
+import UserDetailsForm from '../UserDetailsForm'
 import { Col, Alert } from 'reactstrap';
-import RegisterDriverForm from '../RegisterDriver/RegisterDriverForm';
+import DriverDetailsForm from '../DriverDetailsForm';
 import { CSSTransition } from 'react-transition-group';
-import { put, get } from '../../Services/api';
-import { updateDetails } from '../../Interfaces/updateDetails';
-import { driver } from '../../Interfaces/driver';
-
+import { UpdateDetails } from '../../Interfaces/EditProfile/UpdateDetails';
+import { Driver } from '../../Interfaces/Driver';
+import { ApiConnection } from '../../Services/ApiConnection'
+import { Urls } from '../../Constants/Urls';
+import { UserDetailsConstants } from '../../Constants/UserDetailsConstants';
+import { DriverDetailsConstants } from '../../Constants/DriverDetailsConstants';
+var api = new ApiConnection();
+var userDetailsConstants = new UserDetailsConstants();
+var driverDetailsConstants = new DriverDetailsConstants();
+var url = new Urls();
 interface MyState{
     name : string;
     phoneNumber : string;
@@ -18,8 +24,8 @@ interface MyState{
     carYearOfManufacture : string,
     errorDetails : string;
     errorDriver : string;
-    defaultDetailsValues : updateDetails;
-    defaultDriverValues : driver;
+    defaultDetailsValues : UpdateDetails;
+    defaultDriverValues : Driver;
     isADriver : boolean;
     success : boolean;
     alert : string;
@@ -56,7 +62,7 @@ export class EditProfile extends Component <{},MyState>{
         }
     }
     componentDidMount(){
-        get('https://localhost:44347/api/user/getdetails')
+        api.get(url.GetDetails)
               .then(res => {
               console.log(res);
               this.setState({
@@ -105,7 +111,7 @@ export class EditProfile extends Component <{},MyState>{
               Email : this.state.email
             }
   
-            put('https://localhost:44347/api/user/update', data)
+            api.put(url.UserUpdate, data)
               .then(res => {
               console.log(res);
               if (res.token) {
@@ -131,7 +137,7 @@ export class EditProfile extends Component <{},MyState>{
           if(!re.test(String(email).toLowerCase()))
           {
               this.setState({
-                  errorDetails : "Please enter a valid Email Address "
+                  errorDetails : userDetailsConstants.EmailError
               })
             return false
           }
@@ -142,7 +148,7 @@ export class EditProfile extends Component <{},MyState>{
         if(!re.test(String(phoneNumber).toLowerCase()))
         {
             this.setState({
-                errorDetails : "Please enter a valid Phone Number "
+                errorDetails : userDetailsConstants.PhoneError
             })
         return false
         }
@@ -152,7 +158,7 @@ export class EditProfile extends Component <{},MyState>{
         if(name ==="" || phoneNumber ==="" || email ==="" )
         {
             this.setState({
-                errorDetails : "Please fill all the fields "
+                errorDetails : userDetailsConstants.FormNotFilledError
             })
         return false;
         }
@@ -170,7 +176,7 @@ export class EditProfile extends Component <{},MyState>{
             YearOfManufacture : this.state.carYearOfManufacture,
             };
         
-            put(`https://localhost:44347/api/driver/update/`, data)
+            api.put(url.DriverUpdate, data)
             .then(res => console.log(res))
             .then(() => {
                 this.setState({
@@ -191,7 +197,7 @@ export class EditProfile extends Component <{},MyState>{
         if(!re.test(registrationNumber))
         {
             this.setState({
-            errorDriver :"Please enter a valid Vehicle Registration Number"
+            errorDriver : driverDetailsConstants.RegistrationError
             })
             return false
         }
@@ -202,7 +208,7 @@ export class EditProfile extends Component <{},MyState>{
         && (/\w+((20[0-1][0-9])|(2020))[0-9]{7}/).test(license) 
         && license.length === 15)){
             this.setState({
-            errorDriver :"Please enter a valid License Number"
+            errorDriver : driverDetailsConstants.LicenseError
             })
             return false
         }
@@ -211,7 +217,7 @@ export class EditProfile extends Component <{},MyState>{
     isFormFilled = (licenseNo: string, registrationNumber: string, carManufacturer: string, carModel : string, carYearOfManufacture : string) => {
         if(licenseNo.trim()==="" || registrationNumber.trim()==="" || carManufacturer.trim()===""|| carModel.trim()===""|| carYearOfManufacture.trim()===""){
         this.setState({
-            errorDriver :"Please fill all the fields"
+            errorDriver : driverDetailsConstants.FormNotFilledError
         })
         return false
         }
@@ -229,7 +235,7 @@ export class EditProfile extends Component <{},MyState>{
                     <Alert id="alert" color="success">{this.state.alert}</Alert> 
                 </CSSTransition>
                 <Col xs="12" className="edit-profile bg">
-                    <SignupForm 
+                    <UserDetailsForm 
                     heading ="Personal Details" 
                     handleChange={this.handleChange} 
                     handleSubmit={this.handleDetailsSubmit} 
@@ -237,7 +243,7 @@ export class EditProfile extends Component <{},MyState>{
                     defaultValues={this.state.defaultDetailsValues} 
                     signup={false}
                     />
-                    <RegisterDriverForm 
+                    <DriverDetailsForm 
                     defaultValues={this.state.defaultDriverValues} 
                     heading="Driver Details" 
                     error={this.state.errorDriver}

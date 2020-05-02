@@ -1,4 +1,6 @@
-export async function post(url : string, data : any) {
+export class ApiConnection
+{
+    async post(url : string, data : any) {
     const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -7,10 +9,11 @@ export async function post(url : string, data : any) {
       "Authorization": "Bearer " + localStorage.authToken,
     },
     body: JSON.stringify(data)
-    });
+    })
+    console.log(res);
     return await res.json();
   }
-  export async function postWithoutAuth(url : string, data : any) {
+    async postWithoutAuth(url : string, data : any) {
     const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -21,7 +24,7 @@ export async function post(url : string, data : any) {
     });
     return await res.json();
   }
-  export async function put(url : string, data : any) {
+    async put(url : string, data : any) {
     const res = await fetch(url, {
     method: "PUT",
     headers: {
@@ -34,7 +37,7 @@ export async function post(url : string, data : any) {
     return await res.json();
   }
 
-  export async function get(url : string){
+    async get(url : string){
     const res = await fetch(url, {
     method: "GET",
     headers: {
@@ -45,3 +48,4 @@ export async function post(url : string, data : any) {
     });
     return await res.json();
   }
+}

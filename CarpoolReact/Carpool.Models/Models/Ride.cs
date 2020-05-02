@@ -15,12 +15,13 @@ namespace Carpool.Models
         public string Time { get; set; }
         public string SourceId { get; set; }
         public string DestinationId { get; set; }
+        public string ViaPointIds { get; set; }
         public RideState RideState { get; set; }
         public Ride()
         {
 
         }
-        public Ride(string id, string driverID, DateTime date, string time, string sourceId, string destinationId)
+        public Ride(string id, string driverID, DateTime date, string time, string sourceId, string destinationId, string viaPointIds)
         {
             this.Id = id;
             this.DriverId = driverID;
@@ -28,6 +29,7 @@ namespace Carpool.Models
             this.Time = time;
             this.SourceId = sourceId;
             this.DestinationId = destinationId;
+            this.ViaPointIds = viaPointIds;
             this.RideState = RideState.Active;
         }
     }

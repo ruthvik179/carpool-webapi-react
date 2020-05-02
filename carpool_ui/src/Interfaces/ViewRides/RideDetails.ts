@@ -1,4 +1,4 @@
-export interface rideDetails{
+export interface RideDetails{
     id : string;
     name : string;
     source : string;

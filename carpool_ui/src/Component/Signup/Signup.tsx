@@ -1,8 +1,16 @@
 import React, { Component } from 'react'
 import './../../Styles/style.scss';
 import { Redirect } from 'react-router';
-import SignupForm from './SignupForm'
-import { postWithoutAuth } from '../../Services/api';
+import UserDetailsForm from '../UserDetailsForm'
+import { ApiConnection } from '../../Services/ApiConnection'
+import { Col } from 'reactstrap';
+import { LoginPageConstants } from '../../Constants/LoginPageConstants';
+import { Urls } from '../../Constants/Urls';
+import { UserDetailsConstants } from '../../Constants/UserDetailsConstants';
+var api = new ApiConnection();
+var userDetailsConstant = new UserDetailsConstants();
+var loginPageConstants = new LoginPageConstants();
+var urls = new Urls();
   interface MyState{
     name : string;
     phoneNumber : string;
@@ -50,7 +58,7 @@ import { postWithoutAuth } from '../../Services/api';
             ConfirmPassword : this.state.confirmPassword
           }
 
-          postWithoutAuth('https://localhost:44347/api/auth/register', data)
+          api.postWithoutAuth(urls.RegisterUser, data)
             .then(res => {
             console.log(res);
             if(res.error)
@@ -75,7 +83,7 @@ import { postWithoutAuth } from '../../Services/api';
         if(!re.test(String(email).toLowerCase()))
         {
             this.setState({
-                error : "Please enter a valid Email Address "
+                error : userDetailsConstant.EmailError
             })
           return false
         }
@@ -86,7 +94,7 @@ import { postWithoutAuth } from '../../Services/api';
         if(!re.test(String(phoneNumber).toLowerCase()))
         {
             this.setState({
-                error : "Please enter a valid Phone Number "
+                error : userDetailsConstant.PhoneError
             })
           return false
         }
@@ -97,7 +105,7 @@ import { postWithoutAuth } from '../../Services/api';
         if(!re.test(password))
         {
             this.setState({
-                error : "Please enter a valid Password "
+                error : userDetailsConstant.PasswordError
             })
           return false
         }
@@ -107,7 +115,7 @@ import { postWithoutAuth } from '../../Services/api';
         if(password !== confirmPassword)
         {
             this.setState({
-                error : "Password's don't match "
+                error : userDetailsConstant.PasswordCheckError
             })
           return false
         }
@@ -117,7 +125,7 @@ import { postWithoutAuth } from '../../Services/api';
         if(name ==="" || phoneNumber ==="" || email ==="" || password ==="" || confirmPassword ==="")
         {
             this.setState({
-                error : "Please fill all the fields "
+                error : userDetailsConstant.FormNotFilledError
             })
           return false;
         }
@@ -133,14 +141,20 @@ import { postWithoutAuth } from '../../Services/api';
             confirmPassword : "",
         }
       return localStorage.authToken === undefined || localStorage.authToken === null ? (
-        <SignupForm 
-        handleSubmit = {this.handleSubmit}
-        handleChange = {this.handleChange}
-        error = {this.state.error}
-        heading = "Sign Up"
-        defaultValues = {defaultValues}
-        signup = {true}
+        <Col className="overlay-signup" xs="4">
+          <div className="login-page">
+            <UserDetailsForm 
+            handleSubmit = {this.handleSubmit}
+            handleChange = {this.handleChange}
+            error = {this.state.error}
+            heading = {userDetailsConstant.SignupLabel}
+            defaultValues = {defaultValues}
+            signup = {true}
             />
+          </div>
+          <p className="message">{userDetailsConstant.AlreadyAUserLabel} <a href="./login">{loginPageConstants.LoginLabel}!</a></p>
+          <hr className="side-line"></hr>
+        </Col>
       ) : ( <Redirect to="/home"/>);
     }
   }

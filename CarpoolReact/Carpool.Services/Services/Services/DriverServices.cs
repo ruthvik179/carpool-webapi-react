@@ -20,22 +20,26 @@ namespace Carpool.Services
             this.carpoolDb = carpoolDb;
         }
 
-        public int CreateRide(OfferRequest model, ApplicationUser user)
+        public string CreateRide(OfferRequest model, ApplicationUser user)
         {
             try
             {
                 Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
                 if (driver == null)
                 {
-                    return 401;
+                    return "Driver not registered";
                 }
                 var rideId = HelperService.GenerateId("RID");
-                model.Source.Type = LocationType.Source;
-                model.Source.Id = HelperService.GenerateId("SOU");
-                model.Source.RideId = rideId;
-                model.Destination.Type = LocationType.Destination;
-                model.Destination.Id = HelperService.GenerateId("DES");
-                model.Destination.RideId = rideId;
+                List<string> vaiPointIds = new List<string>();
+                AddLocation(model.Source);
+                AddLocation(model.Destination);
+                vaiPointIds.Add(model.Source.Id);
+                foreach (Location loc in model.ViaPoints)
+                {
+                    AddLocation(loc);
+                    vaiPointIds.Add(loc.Id);
+                }
+                vaiPointIds.Add(model.Destination.Id);
                 Ride ride = new Ride
                 (
                 rideId,
@@ -43,41 +47,23 @@ namespace Carpool.Services
                 Convert.ToDateTime(model.Date),
                 model.Time,
                 model.Source.Id,
-                model.Destination.Id
+                model.Destination.Id,
+                String.Join(",", vaiPointIds)
                 );
-                foreach (Location loc in model.ViaPoints)
-                {
-                    if (loc.Name != "")
-                    {
-                        loc.Id = HelperService.GenerateId("VIA");
-                        loc.Type = LocationType.ViaPoint;
-                        loc.RideId = ride.Id;
-                        carpoolDb.Locations.Add(loc);
-                    }
-                }
-                carpoolDb.Locations.Add(model.Source);
-                carpoolDb.Locations.Add(model.Destination);
                 carpoolDb.Rides.Add(ride);
                 List<Seat> seats = new List<Seat>();
-                for (int i = 0; i < Convert.ToInt32(model.Seats); i++)
+                for (int j = 0; j < Convert.ToInt32(model.Seats); j++)
                 {
-                    Seat seat = new Seat(HelperService.GenerateId("SEA") + Convert.ToString(i), ride.Id);
+                    Seat seat = new Seat(HelperService.GenerateId("SEA") + Convert.ToString(j), ride.Id);
                     seats.Add(seat);
                 }
                 carpoolDb.Seats.AddRange(seats);
-                try
-                {
-                    carpoolDb.SaveChanges();
-                }
-                catch(Exception e)
-                {
-                    return 400;
-                }
-                return 200;
+                carpoolDb.SaveChanges();
+                return "Ok";
             }
             catch (Exception e)
             {
-                return 400;
+                return e.Message;
             }
         }
 
@@ -140,7 +126,7 @@ namespace Carpool.Services
             return matches;
         }
 
-        public int ConfirmBooking(ApplicationUser user, BookingRequest model)
+        public string ConfirmBooking(ApplicationUser user, BookingRequest model)
         {
             try
             {
@@ -158,7 +144,7 @@ namespace Carpool.Services
                     List<Seat> seats = carpoolDb.Seats.Where(c => c.RideId.Equals(rideRequest.RideId) && c.State.Equals(SeatState.Free)).ToList();
                     if (seats == null)
                     {
-                        return 400;
+                        return "Seats are full";
                     }
                     seats[0].State = SeatState.Booked;
                     seats[0].RiderId = rider.Id;
@@ -172,27 +158,34 @@ namespace Carpool.Services
                 }
                 carpoolDb.RideRequests.Update(rideRequest);
                 carpoolDb.SaveChanges();
-                return 200;
+                return "Ok";
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return 400;
+                return e.Message;
             }
         }
-        public int CancelBooking(ApplicationUser user, string bookingId)
+        public string CancelBooking(ApplicationUser user, string bookingId)
         {
-            Booking booking = carpoolDb.Bookings.FirstOrDefault(c => c.Id.Equals(bookingId));
-            List<Seat> seats = carpoolDb.Seats.Where(c => c.RideId.Equals(booking.RideId) && c.RiderId.Equals(booking.RiderId)).ToList();
-            foreach (Seat seat in seats)
+            try
             {
-                seat.State = SeatState.Free;
-                seat.RiderId = null;
+                Booking booking = carpoolDb.Bookings.FirstOrDefault(c => c.Id.Equals(bookingId));
+                List<Seat> seats = carpoolDb.Seats.Where(c => c.RideId.Equals(booking.RideId) && c.RiderId.Equals(booking.RiderId)).ToList();
+                foreach (Seat seat in seats)
+                {
+                    seat.State = SeatState.Free;
+                    seat.RiderId = null;
+                }
+                carpoolDb.Seats.UpdateRange(seats);
+                booking.BookingState = BookingState.Cancelled;
+                carpoolDb.Bookings.Update(booking);
+                carpoolDb.SaveChanges();
+                return "Ok";
             }
-            carpoolDb.Seats.UpdateRange(seats);
-            booking.BookingState = BookingState.Cancelled;
-            carpoolDb.Bookings.Update(booking);
-            carpoolDb.SaveChanges();
-            return 200;
+            catch(Exception e)
+            {
+                return e.Message;
+            }
         }
         public bool IsADriver(ApplicationUser user)
         {
@@ -329,6 +322,15 @@ namespace Carpool.Services
             catch(Exception)
             {
                 return "BadRequest";
+            }
+        }
+
+        public void AddLocation(Location loc)
+        {
+            Location location = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(loc.Id));
+            if (location == null)
+            {
+                carpoolDb.Locations.Add(loc);
             }
         }
     }

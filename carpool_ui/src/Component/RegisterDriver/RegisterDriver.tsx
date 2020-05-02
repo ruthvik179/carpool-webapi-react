@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
-import RegisterDriverForm from './RegisterDriverForm'
-import history from './../../history'
-import { post } from '../../Services/api';
+import DriverDetailsForm from '../DriverDetailsForm'
+import { ApiConnection } from '../../Services/ApiConnection'
+import { Urls } from '../../Constants/Urls';
+import { DriverDetailsConstants } from '../../Constants/DriverDetailsConstants';
+var api = new ApiConnection();
+var urls = new Urls();
+var driverDetailsConstants = new DriverDetailsConstants();
 interface MyState{
     license : string,
     registrationNumber : string,
@@ -44,7 +48,7 @@ export class RegisterDriver extends Component<MyProps, MyState> {
           YearOfManufacture : this.state.carYearOfManufacture,
         };
     
-        post(`https://localhost:44347/api/driver/RegisterDriver/`, data)
+        api.post(urls.RegisterDriver, data)
           .then((res : any) => {
             console.log(res)
             if(res.error)
@@ -62,7 +66,7 @@ export class RegisterDriver extends Component<MyProps, MyState> {
       if(!re.test(registrationNumber))
       {
         this.setState({
-          error :"Please enter a valid Vehicle Registration Number"
+          error : driverDetailsConstants.RegistrationError
         })
         return false
       }
@@ -73,7 +77,7 @@ export class RegisterDriver extends Component<MyProps, MyState> {
       && (/\w+((20[0-1][0-9])|(2020))[0-9]{7}/).test(license) 
       && license.length === 15)){
         this.setState({
-          error :"Please enter a valid License Number"
+          error : driverDetailsConstants.LicenseError
         })
         return false
       }
@@ -82,7 +86,7 @@ export class RegisterDriver extends Component<MyProps, MyState> {
     isFormFilled = (licenseNo: string, registrationNumber: string, carManufacturer: string, carModel : string, carYearOfManufacture : string) => {
      if(licenseNo.trim()==="" || registrationNumber.trim()==="" || carManufacturer.trim()===""|| carModel.trim()===""|| carYearOfManufacture.trim()===""){
       this.setState({
-        error :"Please fill all the fields"
+        error : driverDetailsConstants.FormNotFilledError
       })
       return false
       }
@@ -100,7 +104,7 @@ export class RegisterDriver extends Component<MyProps, MyState> {
         return (
             <div className="register-driver bg">
                 <h1 className="main-heading" >Please register as a <span className="driver-text">Driver</span> to be able to <span className="offer-text">Offer</span> Rides</h1>
-                <RegisterDriverForm defaultValues={defaultValues} heading="Driver Registration" error={this.state.error}handleChange={this.handleChange} handleSubmit={this.handleSubmit}/>
+                <DriverDetailsForm defaultValues={defaultValues} heading="Driver Registration" error={this.state.error}handleChange={this.handleChange} handleSubmit={this.handleSubmit}/>
             </div>
         )
     }

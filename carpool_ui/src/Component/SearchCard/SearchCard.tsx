@@ -1,6 +1,11 @@
 import React from 'react';
 import { Card, Row, Col, Badge } from 'reactstrap';
 import LocationGraphic from './../LocationGraphic'
+import {RideConstants} from '../../Constants/RideConstants'
+import { HelperService } from '../../Services/HelperService';
+var rideConstants = new RideConstants();
+var helperService = new HelperService();
+
 interface MyProps{
     name : string;
     source : string;
@@ -41,14 +46,14 @@ function SearchResult(props : MyProps) {
     const showPrice = () => {
         return(
         <Col xs="7" className="result-column">
-            <p className="label">Price</p>
-            <p>₹{props.price}</p>
+            <p className="label">{rideConstants.PriceLabel}</p>
+            <p>₹{helperService.formatCurrency(props.price || 0)}</p>
         </Col>);
     }
     const showSeatAvailability = () => {
         return(
         <Col xs="5" className="result-column">
-            <p className="label">Seat Availability</p>
+            <p className="label">{rideConstants.SeatsLabel}</p>
             <p>{props.seats}</p>
         </Col>);
     }
@@ -56,10 +61,10 @@ function SearchResult(props : MyProps) {
         return(
         <Col xs="5" className="result-column">
             <Row className="taxes">
-                <p className="label">SGST</p>
-                <p>{props.sgst}</p>
-                <p className="label">CGST</p>
-                <p>{props.cgst}</p>
+                <p className="label">{rideConstants.StateTaxLabel}</p>
+                <p>{helperService.formatCurrency(props.sgst || 0)}</p>
+                <p className="label">{rideConstants.CentralTaxLabel}</p>
+                <p>{helperService.formatCurrency(props.cgst || 0)}</p>
             </Row>
             {cancelled? showCancellationCharges(): null}
         </Col>);
@@ -67,8 +72,8 @@ function SearchResult(props : MyProps) {
     const showCancellationCharges = () => {
         return(
         <Row xs="5" className="result-column">
-            <p className="label">Cancellation Charges</p>
-            <p>{props.cancellationCharges}</p>
+            <p className="label">{rideConstants.CancellationChargesLabel}</p>
+            <p>{helperService.formatCurrency(props.cancellationCharges || 0)}</p>
         </Row>);
     }
     const showButton = () => {
@@ -90,24 +95,24 @@ function SearchResult(props : MyProps) {
             { props.type !== "offer" ? showHeader() : null}
             <Row>
                 <Col xs="3" className="result-column">
-                    <p className="label">From</p>
+                    <p className="label">{rideConstants.SourceLabel}</p>
                     <p>{source_array[0]}</p>
                 </Col>
                 <Col xs="4" className="result-column location-graphic-container">
                     <LocationGraphic/>
                 </Col>
                 <Col xs="5"className="result-column">
-                    <p className="label">To</p>
+                    <p className="label">{rideConstants.DestinationLabel}</p>
                     <p>{destination_array[0]}</p>
                 </Col>
             </Row>
             <Row>
                 <Col xs="7" className="result-column">
-                    <p className="label">Date</p>
+                    <p className="label">{rideConstants.DateLabel}</p>
                     <p>{props.date.slice(0,10)}</p>
                 </Col>
                 <Col xs="5" className="result-column">
-                    <p className="label">Time</p>
+                    <p className="label">{rideConstants.TimeLabel}</p>
                     <p>{props.time}</p>
                 </Col>
             </Row>

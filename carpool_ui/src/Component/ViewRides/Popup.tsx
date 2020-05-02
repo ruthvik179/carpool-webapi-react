@@ -2,17 +2,21 @@ import React from 'react'
 import { Card, Container, Row, Col } from 'reactstrap';
 import Bookings from './Bookings';
 import Requests from './Requests';
-import history from './../../history'
-import {post, get} from './../../Services/api'
-import { rideDetails } from '../../Interfaces/rideDetails';
-import { bookings_requests } from '../../Interfaces/bookings_requests';
-
+import { RideDetails } from '../../Interfaces/ViewRides/RideDetails';
+import { BookingRequest } from '../../Interfaces/ViewRides/BookingRequest';
+import { ApiConnection } from '../../Services/ApiConnection'
+import {RideConstants} from '../../Constants/RideConstants'
+import { Urls } from '../../Constants/Urls';
+var api = new ApiConnection();
+export interface BookingsRequests extends Array<BookingRequest> { }
+var rideConstants = new RideConstants();
+var urls = new Urls();
 interface MyProps{
   text : string;
   closePopup : () => void;
-  bookings : bookings_requests;
-  requests : bookings_requests;
-  ride : rideDetails;
+  bookings : BookingsRequests;
+  requests : BookingsRequests;
+  ride : RideDetails;
   cancelRide : (id : string) => void;
 }
 interface MyState{
@@ -32,14 +36,14 @@ class Popup extends React.Component<MyProps, MyState>{
         Id : id
       }
       this.props.closePopup();
-      post(`https://localhost:44347/api/driver/confirmbooking`, data)
+      api.post(urls.ConfirmBooking, data)
         .then(res =>console.log(res))
         .catch(err => console.log(err));
     }
     handleCancel = (id : string) =>{
       console.log(id);
       this.props.closePopup();
-      post(`https://localhost:44347/api/driver/cancelbooking`, id)
+      api.post(urls.CancelBookingDriver, id)
         .then(res =>console.log(res))
         .catch(err => console.log(err));
     }
@@ -63,31 +67,31 @@ class Popup extends React.Component<MyProps, MyState>{
             </Row>
             <Row>
               <Col>
-                <p className="label">From </p>
+                <p className="label">{rideConstants.SourceLabel}</p>
                 <p>{this.props.ride.source}</p>
               </Col>
               <Col>
-                <p className="label">To </p>
+                <p className="label">{rideConstants.DestinationLabel} </p>
                 <p>{this.props.ride.destination}</p>
               </Col>
             </Row>
             <Row>
               <Col>
-                <p className="label">Seats Available </p>
+                <p className="label">{rideConstants.SeatsLabel} </p>
                 <p>{this.props.ride.seatCount}</p>
               </Col>
               <Col>
-                <p className="label">Date Of Journey </p>
+                <p className="label">{rideConstants.DateLabel} </p>
                 <p>{this.props.ride.date.slice(0,10)}</p>
               </Col>
             </Row>
             <Row>
               <Col>
-                <p className="label">Bookings </p>
+                <p className="label">{rideConstants.BookingsLabel} </p>
                 <p>{this.props.ride.bookingCount}</p>
               </Col>
               <Col>
-                <p className="label">Requests </p>
+                <p className="label">{rideConstants.RideRequestsLabel}</p>
                 <p>{this.props.ride.requestCount}</p>
               </Col>
             </Row>
@@ -96,14 +100,14 @@ class Popup extends React.Component<MyProps, MyState>{
                 className={`${this.state.showTab === 1 ? "active" : ""}`}
                 onClick={() => this.setState({ showTab: 1 })}
               >
-                <h3>Bookings</h3>
+                <h3>{rideConstants.BookingsLabel}</h3>
               </Col>
 
               <Col xs="4"
                 className={`${this.state.showTab === 2 ? "active" : ""}`}
                 onClick={() => this.setState({ showTab: 2 })}
               >
-                <h3>Requests</h3>
+                <h3>{rideConstants.RideRequestsLabel}</h3>
               </Col>
             </Row>
             {this.state.showTab === 1 ? <Bookings handleCancel={this.handleCancel} bookings={this.props.bookings}/> : <Requests handleConfirm={this.handleConfirm} requests={this.props.requests}/>}

@@ -1,4 +1,4 @@
-export interface booking_request {
+export interface BookingRequest {
     name : string;
     source : string;
     destination : string;

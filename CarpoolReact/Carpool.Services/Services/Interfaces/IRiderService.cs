@@ -9,7 +9,7 @@ namespace Carpool.Interfaces
 {
     public interface IRiderService
     {
-        public List<MatchResponse> GetMatches(MatchRequest model);
+        public List<MatchResponse> GetMatches(ApplicationUser user, MatchRequest model);
         public string RequestRide(ApplicationUser user, RideRquestModel model);
         public List<MatchResponse> GetRequests(ApplicationUser user);
         public List<MatchResponse> GetBookings(ApplicationUser user);

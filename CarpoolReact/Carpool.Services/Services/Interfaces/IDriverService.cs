@@ -9,11 +9,11 @@ namespace Carpool.Interfaces
 {
     public interface IDriverService
     {
-        public int CreateRide(OfferRequest model, ApplicationUser user);
+        public string CreateRide(OfferRequest model, ApplicationUser user);
         public string RegisterDriver(RegisterDriverRequest model, ApplicationUser user);
         public List<MatchResponse> GetRides(ApplicationUser user);
-        public int ConfirmBooking(ApplicationUser user, BookingRequest model);
-        public int CancelBooking(ApplicationUser user, string bookingId);
+        public string ConfirmBooking(ApplicationUser user, BookingRequest model);
+        public string CancelBooking(ApplicationUser user, string bookingId);
         public bool IsADriver(ApplicationUser user);
         public object GetRideDetails(string rideId);
         public object Update(ApplicationUser user, RegisterDriverRequest model);

@@ -5,6 +5,8 @@ import Route from './Route'
 import Timings from './RideTimings'
 import Button from './../Button'
 import ToggleButton from './ToggleButton'
+import {RideConstants} from '../../Constants/RideConstants'
+var rideConstants = new RideConstants();
 interface MyProps{
     Heading : string,
     values :{},
@@ -21,7 +23,7 @@ function RideForm(props : MyProps) {
                 <div className="heading">
                     <div>
                         <h1>{props.Heading} </h1>
-                        <p>We get you the matches ASAP</p>
+                        <p>{rideConstants.Slogan}</p>
                     </div>
                     <ToggleButton/>
                 </div>

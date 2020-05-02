@@ -1,9 +1,11 @@
 import React from "react";
+import { HelperService } from "../../Services/HelperService";
 export interface rides extends Array<any> { }
 interface MyProps{
   requests : rides
   handleConfirm: (id : string, flag : boolean) => void
   }
+  var helperService = new HelperService();
 export default function Requests(props : MyProps) {
   return (
       <table className="table">
@@ -32,7 +34,7 @@ export default function Requests(props : MyProps) {
             <td>{val.name}</td>
             <td>{source}</td>
             <td>{destination}</td>
-            <td>₹{val.price}</td>
+            <td>₹{helperService.formatCurrency(val.price)}</td>
             <td>
               <button className="accept-button" onClick={() => {props.handleConfirm(id, true)}}>Accept</button>
               <button className="reject-button" onClick={() => {props.handleConfirm(id, false)}}>Reject</button>

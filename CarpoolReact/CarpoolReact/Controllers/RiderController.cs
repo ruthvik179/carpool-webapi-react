@@ -34,7 +34,7 @@ namespace Carpool.Controllers
             }
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            List<MatchResponse> Matches = IRiderService.GetMatches(model);
+            List<MatchResponse> Matches = IRiderService.GetMatches(user, model);
             return Ok(new
             {
                 Matches = Matches,
@@ -54,12 +54,13 @@ namespace Carpool.Controllers
             {
                 return Ok(new 
                 { 
+                    status = 200,
                     message ="Ride Offered Successfully."
                 });
             }
             return BadRequest(new
             {
-                error = "Ride could not be offered."
+                error = result
             });
         }
         [HttpGet]
@@ -98,12 +99,13 @@ namespace Carpool.Controllers
             {
                 return Ok(new
                 {
+                    status = 200,
                     message = "Booking Cancelled Successfully."
                 });
             }
             return BadRequest(new
             {
-                error = "Booking could not be cancelled."
+                error = result
             });
         }
         [HttpPost]
@@ -120,12 +122,13 @@ namespace Carpool.Controllers
             {
                 return Ok(new
                 {
+                    status = 200,
                     message = "Request Cancelled Successfully."
                 });
             }
             return BadRequest(new
             {
-                error = "Request could not be cancelled."
+                error = result
             });
         }
     }

@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import GeneratePage from "./GeneratePage";
-import history from './../../history'
 import { Alert } from "reactstrap";
 import { CSSTransition } from "react-transition-group";
-import { post } from "../../Services/api";
+import { ApiConnection } from '../../Services/ApiConnection'
+import Loading from "../Loading/Loading";
+import { Urls } from "../../Constants/Urls";
+var api = new ApiConnection();
+var urls = new Urls();
 export interface viaPoints extends Array<any> { }
 interface MyProps{
 
@@ -19,6 +22,7 @@ interface MyState{
     error1 : string;
     error2 : string;
     success : boolean;
+    loading : boolean;
 }
 export class OfferRide extends Component<MyProps, MyState> {
   constructor(props : MyProps) {
@@ -28,18 +32,21 @@ export class OfferRide extends Component<MyProps, MyState> {
       source: {
         name: "",
         lat: 0,
-        lng: 0
+        lng: 0,
+        id : ""
       },
       destination: {
         name: "",
         lat: 0,
-        lng: 0
+        lng: 0,
+        id : ""
       },
       viaPoints: [
         {
           name: "",
           lat: 0,
-          lng: 0
+          lng: 0,
+          id : ""
         }
       ],
       
@@ -49,7 +56,8 @@ export class OfferRide extends Component<MyProps, MyState> {
       time: "",
       error1: "",
       error2: "",
-      success: false
+      success: false,
+      loading: false
     };
   }
   next= () => {
@@ -68,7 +76,6 @@ export class OfferRide extends Component<MyProps, MyState> {
       });
     }
   };
-
   handleChange = (event: { target: { name: any;  value: any}; }): void => {
     const key = event.target.name;
     const value = event.target.value;
@@ -77,12 +84,14 @@ export class OfferRide extends Component<MyProps, MyState> {
     }
   }
   handlePlaceChange = (type : string, place : any) => {
+    console.log(place);
     if (type === "source") {
       this.setState({
         source: {
           name: place.formatted_address,
           lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng()
+          lng: place.geometry.location.lng(),
+          id: place.place_id,
         }
       });
     } else {
@@ -90,33 +99,35 @@ export class OfferRide extends Component<MyProps, MyState> {
         destination: {
           name: place.formatted_address,
           lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng()
+          lng: place.geometry.location.lng(),
+          id: place.place_id,
         }
       });
     }
   };
-  handleViaPointChange = (coordinates : any, index : number) => {
+  handleViaPointChange = (place : any, index : number) => {
+    console.log(place);
     const viaPointsClone = this.state.viaPoints;
-    viaPointsClone[index].name = coordinates.formatted_address;
-    viaPointsClone[index].lat = coordinates.geometry.location.lat();
-    viaPointsClone[index].lng = coordinates.geometry.location.lng();
+    viaPointsClone[index].name = place.formatted_address;
+    viaPointsClone[index].lat = place.geometry.location.lat();
+    viaPointsClone[index].lng = place.geometry.location.lng();
+    viaPointsClone[index].id = place.place_id;
     this.setState({
       viaPoints: viaPointsClone
     });
   };
-
   addViaPoint = () => {
     const viaPointsClone = this.state.viaPoints.concat({
       name: "",
       lat: 0,
-      lng: 0
+      lng: 0,
+      id : ""
     });
 
     this.setState({
       viaPoints: viaPointsClone,
     });
   };
-
   deleteViaPoint = (index: number) => {
     const viaPointsClone = this.state.viaPoints;
     viaPointsClone.splice(index, 1);
@@ -126,6 +137,9 @@ export class OfferRide extends Component<MyProps, MyState> {
   };
   handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
+    this.setState({
+      loading : true
+    })
     if((this.state.source.lat === 0 && this.state.source.lng === 0) ||
      (this.state.destination.lat === 0 && this.state.destination.lng === 0) ||
       this.state.date === "" || 
@@ -144,12 +158,14 @@ export class OfferRide extends Component<MyProps, MyState> {
         Source: {
           Name: this.state.source.name,
           Latitude: this.state.source.lat,
-          Longitude: this.state.source.lng
+          Longitude: this.state.source.lng,
+          Id: this.state.source.id,
         },
         Destination: {
           Name: this.state.destination.name,
           Latitude: this.state.destination.lat,
-          Longitude: this.state.destination.lng
+          Longitude: this.state.destination.lng,
+          Id: this.state.destination.id,
         },
         Date: this.state.date,
         
@@ -157,31 +173,36 @@ export class OfferRide extends Component<MyProps, MyState> {
           return {
             Name: viaPoint.name,
             Latitude: viaPoint.lat,
-            Longitude: viaPoint.lng
+            Longitude: viaPoint.lng,
+            Id: viaPoint.id
           };
         }),
         Time : this.state.time,
         Seats : this.state.seats
       };
-
-      post(`https://localhost:44347/api/driver/createride`, data)
-        .then(res => console.log(res))
-        .then(() => {
+      api.post(urls.CreateRide, data)
+      .then(res => {
+        console.log(res);
+        if(res.status === 200){
           this.setState({
-            success : true
+            success : true,
+            loading : false
           })
           setTimeout(() => {
             this.setState({
-                success: false
+                success: false,
             })
-         }, 2000);
-        })
-        .catch(err => console.log(err));
-      }
+          }, 2000);
+        }
+        else {
+          this.setState({
+            error2 : res.error,
+            loading : false
+          })
+        }
+      }).catch(err => console.log(err));
+    }
   };
-  alertTimeout = () =>{
-    
-  }
   render(){
     const values = {
       source : this.state.source,
@@ -191,8 +212,9 @@ export class OfferRide extends Component<MyProps, MyState> {
       date : this.state.date,
       time : this.state.time,
     } 
-   
-      return (
+    
+      return this.state.loading ? <Loading/> : (
+        
         <React.Fragment>
           <CSSTransition
           in={this.state.success}

@@ -1,4 +1,7 @@
 import React from 'react';
+import RadioButton from '../RadioButton';
+import {RideConstants} from '../../Constants/RideConstants'
+var rideConstants = new RideConstants();
 interface MyProps{
     handleChange : (event: { target: { name: any; value: any;}; },) => void
 }
@@ -12,26 +15,18 @@ function Seats(props : MyProps) {
                 value : value,
             },
         };
+        console.log(data);
         props.handleChange(data);
     }
     return (
         <div className="seats">
             <div className="seat-count">
-                <label htmlFor="Seats">Seats Available</label>
+                <label htmlFor="Seats">{rideConstants.SeatsLabel}</label>
             </div>
             <div className="button-group-pills text-center" data-toggle="buttons">
-                <label className="btn btn-default" onClick={(e) => handleClick(e)}>
-                    <input type="radio" name="seats"/>
-                    1
-                </label>
-                <label className="btn btn-default" onClick={(e) => handleClick(e)}>
-                    <input type="radio" name="seats"/>
-                    2
-                </label>
-                <label className="btn btn-default" onClick={(e) => handleClick(e)}>
-                    <input type="radio" name="seats"/>
-                    3
-                </label>
+                <RadioButton handleClick = {handleClick} defaultValue ="1" name ="seats"/>
+                <RadioButton handleClick = {handleClick} defaultValue ="2" name ="seats"/>
+                <RadioButton handleClick = {handleClick} defaultValue ="3" name ="seats"/>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-export interface rideValue{
+export interface RideValue{
     name : string;
     source : string;
     destination: string;
