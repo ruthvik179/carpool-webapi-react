@@ -7,6 +7,9 @@ import { BookingRequest } from '../../Interfaces/ViewRides/BookingRequest';
 import { ApiConnection } from '../../Services/ApiConnection'
 import {RideConstants} from '../../Constants/RideConstants'
 import { Urls } from '../../Constants/Urls';
+import { AppState } from '../../Redux/rootreducer';
+import { connect } from 'react-redux';
+import { CancelRide, CancelBookingDriver, ConfirmRideDriver } from '../../Redux/Services/ViewRidesServices';
 var api = new ApiConnection();
 export interface BookingsRequests extends Array<BookingRequest> { }
 var rideConstants = new RideConstants();
@@ -18,6 +21,8 @@ interface MyProps{
   requests : BookingsRequests;
   ride : RideDetails;
   cancelRide : (id : string) => void;
+  cancelBookingDriver : (id : string) => void;
+  confirmRideDriver : (id : string, flag : boolean) => void;
 }
 interface MyState{
     showTab : number;
@@ -31,21 +36,12 @@ class Popup extends React.Component<MyProps, MyState>{
         };
       }
     handleConfirm= (id : string, flag : boolean) =>{
-      const data = {
-        Accepted : flag,
-        Id : id
-      }
       this.props.closePopup();
-      api.post(urls.ConfirmBooking, data)
-        .then(res =>console.log(res))
-        .catch(err => console.log(err));
+      this.props.confirmRideDriver(id, flag);
     }
     handleCancel = (id : string) =>{
-      console.log(id);
       this.props.closePopup();
-      api.post(urls.CancelBookingDriver, id)
-        .then(res =>console.log(res))
-        .catch(err => console.log(err));
+      this.props.cancelBookingDriver(id)
     }
     render() {
       const id = this.props.ride.id;
@@ -116,4 +112,19 @@ class Popup extends React.Component<MyProps, MyState>{
       );
     }
   }
-  export default Popup
+  const mapStateToProps = (state : AppState) =>{
+    return{
+      bookings : state.rides.bookings,
+      requests : state.rides.requests,
+      ride : state.rides.ride,
+    }
+  }
+  const mapDispatchToProps = dispatch =>{
+    return{
+      cancelRide : (id : string) => CancelRide(id),
+      cancelBookingDriver : (id : string) => CancelBookingDriver(id),
+      confirmRideDriver : (id : string, flag : boolean) => ConfirmRideDriver(id, flag)
+    };
+  }
+  export default connect(mapStateToProps, mapDispatchToProps)(Popup)
+  

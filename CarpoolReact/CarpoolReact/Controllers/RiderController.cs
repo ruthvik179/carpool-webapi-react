@@ -37,6 +37,7 @@ namespace Carpool.Controllers
             List<MatchResponse> Matches = IRiderService.GetMatches(user, model);
             return Ok(new
             {
+                status = 200,
                 Matches = Matches,
             });
         }
@@ -55,7 +56,7 @@ namespace Carpool.Controllers
                 return Ok(new 
                 { 
                     status = 200,
-                    message ="Ride Offered Successfully."
+                    message ="Ride Requested Successfully."
                 });
             }
             return BadRequest(new
@@ -71,6 +72,7 @@ namespace Carpool.Controllers
             List<MatchResponse> matches = IRiderService.GetRequests(user);
             return Ok(new 
             {
+                status = 200,
                 requests = matches 
             });
         }
@@ -82,6 +84,7 @@ namespace Carpool.Controllers
             List<MatchResponse> matches = IRiderService.GetBookings(user);
             return Ok(new
             {
+                status = 200,
                 bookings = matches
             });
         }

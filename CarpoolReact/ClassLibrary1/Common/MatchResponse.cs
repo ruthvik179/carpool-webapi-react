@@ -13,12 +13,10 @@ namespace Carpool.Concerns
         public string Date { get; set; }
         public string Time { get; set; }
         public string Id { get; set; }
-        public double Price { get; set; }
+        public object Price { get; set; }
         public int SeatCount { get; set; }
         public string Status { get; set; }
         public double CancellationCharges { get; set; }
-        public double Sgst { get; set; }
-        public double Cgst { get; set; }
         public MatchResponse()
         {
 

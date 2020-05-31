@@ -1,5 +1,5 @@
 export class LoginPageConstants{
-    readonly LoginError= "Name";
+    readonly LoginError= "Wrong Email or Password";
     readonly NotAUserLabel = "Not registered?";
     readonly LoginLabel = "Login";
 }

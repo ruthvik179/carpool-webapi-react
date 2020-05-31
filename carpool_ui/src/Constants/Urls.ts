@@ -6,7 +6,9 @@ export class Urls{
     readonly UserController = this.MainUrl + "/user";
     readonly GetRideMatches = this.RiderController + "/getridematches";
     readonly RequestRide = this.RiderController + "/requestride";
-    readonly GetDetails = this.UserController + "/getdetails";
+    readonly GetDriverDetails = this.DriverController + "/getdetails";
+    readonly GetPromotions = this.DriverController + "/getpromotions";
+    readonly UpdatePromotions = this.DriverController + "/updatepromotion";
     readonly UserUpdate = this.UserController + "/update";
     readonly DriverUpdate = this.DriverController + "/update";
     readonly IsADriver = this.DriverController + "/isadriver";
@@ -23,4 +25,5 @@ export class Urls{
     readonly GetRideDetails = this.DriverController + "/getridedetails?rideId=";
     readonly CancelBookingDriver = this.DriverController + "/cancelbooking";
     readonly ConfirmBooking = this.DriverController + "/confirmbooking";
+    readonly GetUser = this.UserController + "/getuser";
 }

@@ -13,16 +13,10 @@ namespace Carpool.Models
         public string Id { get; set; }
         public string License { get; set; }
         public string CarRegistrationNumber { get; set; }
+        public string PromotionId { get; set; }
         public Driver()
         {
 
-        }
-        public Driver(string applicationUserId, string id, string license, string carRegistrationNumber)
-        {
-            this.ApplicationUserId = applicationUserId;
-            this.Id = id;
-            this.License = license;
-            this.CarRegistrationNumber = carRegistrationNumber;
         }
     }
 }

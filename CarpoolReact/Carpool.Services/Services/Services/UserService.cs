@@ -19,33 +19,17 @@ namespace Carpool.Services
             HelperService = new HelperService();
             this.carpoolDb = carpoolDb;
         }
-        public object GetDetails(ApplicationUser user)
+        public User GetUser(ApplicationUser user )
         {
-            Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
-            Car car;
-             if(driver == null) 
+            User userResponse = new User()
             {
-                driver = new Driver();
-                driver.License = "";
-                car = new Car("","","",""); 
-            }
-            else
-            {
-                car = carpoolDb.Cars.FirstOrDefault(c => c.RegistrationNumber.Equals(driver.CarRegistrationNumber));
-            }
-            return new 
-            { 
-                name = user.Name,
-                phoneNumber = user.PhoneNumber,
-                email = user.Email,
-                license = driver.License,
-                registrationNumber = car.RegistrationNumber,
-                carManufacturer = car.Manufacturer,
-                carModel = car.Model,
-                carYearOfManufacture = car.Year
+                Name = user.Name,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber
             };
+            return userResponse;
         }
-        public int Update(ApplicationUser user, UserUpdateRequest model)
+        public User Update(ApplicationUser user, User model)
         {
             user.Name = model.Name;
             user.PhoneNumber = model.PhoneNumber;
@@ -55,7 +39,13 @@ namespace Carpool.Services
             user.NormalizedUserName = model.Email.ToUpper();
             carpoolDb.ApplicationUsers.Update(user);
             carpoolDb.SaveChanges();
-            return 200;
+            User userResponse = new User()
+            {
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber,
+                Email = user.Email
+            };
+            return userResponse;
         }
     }
 }

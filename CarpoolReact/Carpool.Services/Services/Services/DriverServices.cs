@@ -71,9 +71,30 @@ namespace Carpool.Services
         {
             try
             {
-                Car car = new Car(model.RegistrationNo, model.CarManufacturer, model.CarModel, model.YearOfManufacture);
-                Driver driver = new Driver(user.Id, user.Id, model.LicenseNo, car.RegistrationNumber);
+                Car car = new Car() 
+                { 
+                    RegistrationNumber =  model.RegistrationNo, 
+                    Manufacturer = model.CarManufacturer, 
+                    Model = model.CarModel, 
+                    Year = model.YearOfManufacture 
+                };
+                Promotion promotion = new Promotion()
+                {
+                    Id = HelperService.GenerateId("PRO"),
+                    Distance = 0,
+                    Discount = 0
+                };
+                carpoolDb.SaveChanges();
+                Driver driver = new Driver() 
+                {
+                    Id = user.Id, 
+                    ApplicationUserId = user.Id, 
+                    License = model.LicenseNo, 
+                    CarRegistrationNumber = car.RegistrationNumber,
+                    PromotionId = promotion.Id
+                };
                 carpoolDb.Cars.Add(car);
+                carpoolDb.Promotions.Add(promotion);
                 carpoolDb.Drivers.Add(driver);
                 carpoolDb.SaveChanges();
                 return "Ok";
@@ -99,31 +120,39 @@ namespace Carpool.Services
 
         public List<MatchResponse> GetRides(ApplicationUser user)
         {
-            Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
             List<MatchResponse> matches = new List<MatchResponse>();
-            if (driver == null)
+            try
             {
+                Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
+                if (driver == null)
+                {
+                    return matches;
+                }
+                List<Ride> rides = carpoolDb.Rides.Where(c => c.DriverId.Equals(driver.Id) && c.RideState.Equals(RideState.Active)).ToList();
+                foreach (Ride ride in rides)
+                {
+                    List<Seat> seats = carpoolDb.Seats.Where(c => c.RideId.Equals(ride.Id) && c.State.Equals(SeatState.Free)).ToList();
+                    Location Source = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(ride.SourceId));
+                    Location Destination = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(ride.DestinationId));
+                    MatchResponse match = new MatchResponse()
+                    {
+                        Name = user.Name,
+                        Source = Source.Name,
+                        Destination = Destination.Name,
+                        Date = Convert.ToString(ride.Date),
+                        Time = ride.Time,
+                        Id = ride.Id,
+                        SeatCount = seats.Count
+                    };
+                    matches.Add(match);
+                }
                 return matches;
             }
-            List<Ride> rides = carpoolDb.Rides.Where(c => c.DriverId.Equals(driver.Id) && c.RideState.Equals(RideState.Active)).ToList();
-            foreach (Ride ride in rides)
+            catch(Exception e)
             {
-                List<Seat> seats = carpoolDb.Seats.Where(c => c.RideId.Equals(ride.Id) && c.State.Equals(SeatState.Free)).ToList();
-                Location Source = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(ride.SourceId));
-                Location Destination = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(ride.DestinationId));
-                MatchResponse match = new MatchResponse()
-                {
-                    Name = user.Name,
-                    Source = Source.Name,
-                    Destination = Destination.Name,
-                    Date = Convert.ToString(ride.Date),
-                    Time = ride.Time,
-                    Id = ride.Id,
-                    SeatCount = seats.Count
-                };
-                matches.Add(match);
+                matches = null;
+                return matches;
             }
-            return matches;
         }
 
         public string ConfirmBooking(ApplicationUser user, BookingRequest model)
@@ -138,9 +167,7 @@ namespace Carpool.Services
                 {
                     Location Source = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(rideRequest.BoardingPointId));
                     Location Destination = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(rideRequest.DropoffPointId));
-                    Bill bill = new Bill(HelperService.GenerateId("BIL"), rideRequest.DriverId, rideRequest.RiderId, rideRequest.Amount, rideRequest.Amount * Constants.SGST, rideRequest.Amount * Constants.CGST);
-                    carpoolDb.Bills.Add(bill);
-                    Booking booking = new Booking(HelperService.GenerateId("BOO"), ride.DriverId, rideRequest.RiderId, ride.Id, Source.Id, Destination.Id, bill.Id);
+                    Booking booking = new Booking(HelperService.GenerateId("BOO"), ride.DriverId, rideRequest.RiderId, ride.Id, Source.Id, Destination.Id, rideRequest.BillId);
                     List<Seat> seats = carpoolDb.Seats.Where(c => c.RideId.Equals(rideRequest.RideId) && c.State.Equals(SeatState.Free)).ToList();
                     if (seats == null)
                     {
@@ -194,101 +221,129 @@ namespace Carpool.Services
         }
         public object GetRideDetails(string rideId)
         {
-            Ride ride = carpoolDb.Rides.FirstOrDefault(c => c.Id.Equals(rideId));
-            Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.Id.Equals(ride.DriverId));
-            ApplicationUser user = carpoolDb.ApplicationUsers.FirstOrDefault(c => c.Id.Equals(driver.ApplicationUserId));
-            if (ride != null)
+            try
             {
-                Location source = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(ride.SourceId));
-                Location destination = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(ride.DestinationId));
-                List<Booking> bookings = carpoolDb.Bookings.Where(c => c.RideId.Equals(rideId) && c.BookingState.Equals(BookingState.Ongoing)).ToList();
-                List<RideRequest> requests = carpoolDb.RideRequests.Where(c => c.RideId.Equals(rideId) && c.Status.Equals(RequestState.Pending)).ToList();
-                List<Seat> seats = carpoolDb.Seats.Where(c => c.RideId.Equals(rideId) && c.State.Equals(SeatState.Free)).ToList();
-                RideDetailsResponse model = new RideDetailsResponse(
-                    ride.Id,
-                    user.Name,
-                    source.Name,
-                    destination.Name,
-                    ride.Time,
-                    Convert.ToString(ride.Date),
-                    seats.Count(),
-                    bookings.Count(),
-                    requests.Count()
-                    );
-                List<MatchResponse> bookingsResponse = new List<MatchResponse>();
-                List<MatchResponse> requestsResponse = new List<MatchResponse>();
-                foreach (Booking booking in bookings)
+                Ride ride = carpoolDb.Rides.FirstOrDefault(c => c.Id.Equals(rideId));
+                Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.Id.Equals(ride.DriverId));
+                ApplicationUser user = carpoolDb.ApplicationUsers.FirstOrDefault(c => c.Id.Equals(driver.ApplicationUserId));
+                if (ride != null)
                 {
-                    Location boardingPoint = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(booking.BoardingPointId));
-                    Location dropoffPoint = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(booking.DropOffPointId));
-                    Bill bill = carpoolDb.Bills.FirstOrDefault(c => c.Id.Equals(booking.BillId));
-                    Rider rider = carpoolDb.Riders.FirstOrDefault(c => c.Id.Equals(booking.RiderId));
-                    ApplicationUser userBooking = carpoolDb.ApplicationUsers.FirstOrDefault(c => c.Id.Equals(rider.ApplicationUserId));
-                    MatchResponse data = new MatchResponse
+                    Location source = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(ride.SourceId));
+                    Location destination = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(ride.DestinationId));
+                    List<Booking> bookings = carpoolDb.Bookings.Where(c => c.RideId.Equals(rideId) && c.BookingState.Equals(BookingState.Ongoing)).ToList();
+                    List<RideRequest> requests = carpoolDb.RideRequests.Where(c => c.RideId.Equals(rideId) && c.Status.Equals(RequestState.Pending)).ToList();
+                    List<Seat> seats = carpoolDb.Seats.Where(c => c.RideId.Equals(rideId) && c.State.Equals(SeatState.Free)).ToList();
+                    RideDetailsResponse model = new RideDetailsResponse(
+                        ride.Id,
+                        user.Name,
+                        source.Name,
+                        destination.Name,
+                        ride.Time,
+                        Convert.ToString(ride.Date),
+                        seats.Count(),
+                        bookings.Count(),
+                        requests.Count()
+                        );
+                    List<MatchResponse> bookingsResponse = new List<MatchResponse>();
+                    List<MatchResponse> requestsResponse = new List<MatchResponse>();
+                    foreach (Booking booking in bookings)
                     {
-                        Name = userBooking.Name,
-                        Source = boardingPoint.Name,
-                        Destination = dropoffPoint.Name,
-                        Id = booking.Id,
-                        Price = bill.Amount
-                    };
-                    bookingsResponse.Add(data);
-                }
-                foreach (RideRequest request in requests)
-                {
-                    Location boardingPoint = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(request.BoardingPointId));
-                    Location dropoffPoint = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(request.DropoffPointId));
-                    Rider rider = carpoolDb.Riders.FirstOrDefault(c => c.Id.Equals(request.RiderId));
-                    ApplicationUser userBooking = carpoolDb.ApplicationUsers.FirstOrDefault(c => c.Id.Equals(rider.ApplicationUserId));
-                    MatchResponse data = new MatchResponse()
+                        Location boardingPoint = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(booking.BoardingPointId));
+                        Location dropoffPoint = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(booking.DropOffPointId));
+                        Bill bill = carpoolDb.Bills.FirstOrDefault(c => c.Id.Equals(booking.BillId));
+                        Rider rider = carpoolDb.Riders.FirstOrDefault(c => c.Id.Equals(booking.RiderId));
+                        ApplicationUser userBooking = carpoolDb.ApplicationUsers.FirstOrDefault(c => c.Id.Equals(rider.ApplicationUserId));
+                        MatchResponse data = new MatchResponse
+                        {
+                            Name = userBooking.Name,
+                            Source = boardingPoint.Name,
+                            Destination = dropoffPoint.Name,
+                            Id = booking.Id,
+                            Price = bill.TotalAmount()
+                        };
+                        bookingsResponse.Add(data);
+                    }
+                    foreach (RideRequest request in requests)
                     {
-                        Name = userBooking.Name,
-                        Source = boardingPoint.Name,
-                        Destination = dropoffPoint.Name,
-                        Id = request.Id,
-                        Price = request.Amount
-                    };
-                    requestsResponse.Add(data);
+                        Location boardingPoint = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(request.BoardingPointId));
+                        Location dropoffPoint = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(request.DropoffPointId));
+                        Bill bill = carpoolDb.Bills.FirstOrDefault(c => c.Id.Equals(request.BillId));
+                        Rider rider = carpoolDb.Riders.FirstOrDefault(c => c.Id.Equals(request.RiderId));
+                        ApplicationUser userBooking = carpoolDb.ApplicationUsers.FirstOrDefault(c => c.Id.Equals(rider.ApplicationUserId));
+                        MatchResponse data = new MatchResponse()
+                        {
+                            Name = userBooking.Name,
+                            Source = boardingPoint.Name,
+                            Destination = dropoffPoint.Name,
+                            Id = request.Id,
+                            Price = bill.TotalAmount()
+                        };
+                        requestsResponse.Add(data);
+                    }
+                    return new { Status = 200, Ride = model, Bookings = bookingsResponse, Requests = requestsResponse };
                 }
-                return new { Ride = model, Bookings = bookingsResponse, Requests = requestsResponse };
+                return null;
             }
-            return null;
+            catch(Exception e)
+            {
+                return null;
+            }
         }
         public object Update(ApplicationUser user, RegisterDriverRequest model)
         {
-            Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
-            if(driver.CarRegistrationNumber == model.RegistrationNo)
-            if (driver != null)
+            try
             {
-                driver.License = model.LicenseNo;
-                Car car = carpoolDb.Cars.FirstOrDefault(c => c.RegistrationNumber.Equals(driver.CarRegistrationNumber));
-                if (car == null || driver.CarRegistrationNumber == model.RegistrationNo)
-                {
-                    driver.CarRegistrationNumber = model.RegistrationNo;
-                    car.RegistrationNumber = model.RegistrationNo;
-                    car.Manufacturer = model.CarManufacturer;
-                    car.Model = model.CarModel;
-                    car.Year = model.YearOfManufacture;
-                    carpoolDb.Cars.Update(car);
-                }
-                else
-                {
-                    return new
+                Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
+                if (driver.CarRegistrationNumber == model.RegistrationNo)
+                    if (driver != null)
                     {
-                        error = "Car already registered by another User"
-                    };
-                }
+                        driver.License = model.LicenseNo;
+                        Car car = carpoolDb.Cars.FirstOrDefault(c => c.RegistrationNumber.Equals(driver.CarRegistrationNumber));
+                        if (car == null || driver.CarRegistrationNumber == model.RegistrationNo)
+                        {
+                            driver.CarRegistrationNumber = model.RegistrationNo;
+                            car.RegistrationNumber = model.RegistrationNo;
+                            car.Manufacturer = model.CarManufacturer;
+                            car.Model = model.CarModel;
+                            car.Year = model.YearOfManufacture;
+                            carpoolDb.Cars.Update(car);
+                        }
+                        else
+                        {
+                            return new
+                            {
+                                error = "Car already registered by another User"
+                            };
+                        }
+                    }
+                    else
+                    {
+                        Car car = new Car()
+                        {
+                            RegistrationNumber = model.RegistrationNo,
+                            Manufacturer = model.CarManufacturer,
+                            Model = model.CarModel,
+                            Year = model.YearOfManufacture
+                        };
+                        driver = new Driver()
+                        {
+                            Id = user.Id,
+                            ApplicationUserId = user.Id,
+                            License = model.LicenseNo,
+                            CarRegistrationNumber = car.RegistrationNumber
+                        };
+                        carpoolDb.Drivers.Add(driver);
+                        carpoolDb.Cars.Add(car);
+                    }
+                carpoolDb.Drivers.Update(driver);
+                carpoolDb.SaveChanges();
+                object driverDetails = this.GetDetails(user);
+                return driverDetails;
             }
-            else
+            catch(Exception e)
             {
-                Car car = new Car(model.RegistrationNo, model.CarManufacturer, model.CarModel, model.YearOfManufacture);
-                driver = new Driver(user.Id, user.Id, model.LicenseNo, car.RegistrationNumber);
-                carpoolDb.Drivers.Add(driver);
-                carpoolDb.Cars.Add(car);
+                return null;
             }
-            carpoolDb.Drivers.Update(driver);
-            carpoolDb.SaveChanges();
-            return new { code = 200 };
         }
         public string CancelRide(string rideId)
         {
@@ -331,6 +386,97 @@ namespace Carpool.Services
             if (location == null)
             {
                 carpoolDb.Locations.Add(loc);
+            }
+        }
+        public PromotionRequest UpdatePromotion(PromotionRequest model, ApplicationUser user)
+        {
+            try
+            {
+                Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
+                Promotion promotion = carpoolDb.Promotions.FirstOrDefault(c => c.Id.Equals(driver.PromotionId));
+                promotion.Discount = Convert.ToDouble(model.Discount)/100;
+                promotion.Distance = Convert.ToInt32(model.Distance);
+                carpoolDb.Promotions.Update(promotion);
+                carpoolDb.SaveChanges();
+                return new PromotionRequest() 
+                { 
+                    Discount = Convert.ToString(promotion.Discount * 100),
+                    Distance = Convert.ToString(promotion.Distance)
+                };
+            }
+            catch(Exception e)
+            {
+                return null;
+            }
+        }
+        public PromotionRequest GetPromotions(ApplicationUser user)
+        {
+            PromotionRequest response = new PromotionRequest();
+            Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
+            if (driver != null)
+            {
+                Promotion promotion = carpoolDb.Promotions.FirstOrDefault(c => c.Id.Equals(driver.PromotionId));
+                if (promotion != null)
+                {
+                    response = new PromotionRequest()
+                    {
+                        Discount = Convert.ToString(promotion.Discount * 100),
+                        Distance = Convert.ToString(promotion.Distance)
+                    };
+                }
+                else
+                {
+                    response = new PromotionRequest()
+                    {
+                        Discount = "0",
+                        Distance = "0"
+                    };
+                }
+            }
+            else
+            {
+                response = new PromotionRequest()
+                {
+                    Discount = "0",
+                    Distance = "0"
+                };
+            }
+            return response;
+        }
+        public object GetDetails(ApplicationUser user)
+        {
+            try
+            {
+                Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
+                Car car;
+                if (driver == null)
+                {
+                    driver = new Driver();
+                    driver.License = "";
+                    car = new Car()
+                    {
+                        RegistrationNumber = "",
+                        Manufacturer = "",
+                        Model = "",
+                        Year = ""
+                    };
+                }
+                else
+                {
+                    car = carpoolDb.Cars.FirstOrDefault(c => c.RegistrationNumber.Equals(driver.CarRegistrationNumber));
+                }
+                return new
+                {
+                    license = driver.License,
+                    registrationNumber = car.RegistrationNumber,
+                    carManufacturer = car.Manufacturer,
+                    carModel = car.Model,
+                    carYearOfManufacture = car.Year
+                };
+            }
+            catch(Exception e)
+            {
+                return null;
             }
         }
     }

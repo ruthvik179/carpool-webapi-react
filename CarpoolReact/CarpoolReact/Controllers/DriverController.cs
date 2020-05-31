@@ -81,9 +81,17 @@ namespace Carpool.Controllers
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
             List<MatchResponse> Matches = IDriverService.GetRides(user);
-            return Ok(new
+            if (Matches != null)
             {
-                Matches = Matches,
+                return Ok(new
+                {
+                    status = 200,
+                    Matches = Matches,
+                });
+            }
+            return BadRequest(new
+            {
+                error = "Unable to fetch rides"
             });
         }
         [HttpPost]
@@ -98,10 +106,19 @@ namespace Carpool.Controllers
             string result = IDriverService.ConfirmBooking(user, model);
             if (result == "Ok")
             {
+                string text;
+                if (model.Accepted == true)
+                {
+                    text = "Ride Requested Accepted";
+                }
+                else
+                {
+                    text = "Ride Request Rejected";
+                }
                 return Ok(new
                 {
                     status = 200,
-                    message = "Booking Confirmed"
+                    message = text
                 });
             }
             return BadRequest(new
@@ -149,7 +166,15 @@ namespace Carpool.Controllers
             {
                 return BadRequest("Invalid Object");
             }
-            return Ok(IDriverService.GetRideDetails(rideId));
+            object RideDetails = IDriverService.GetRideDetails(rideId);
+            if (RideDetails != null)
+            {
+                return Ok(new { Status = 200, OpenedRide = RideDetails });
+            }
+            return BadRequest(new
+            {
+                error = "Unable to fetch Ride Details"
+            });
         }
         [HttpPut]
         public IActionResult Update(RegisterDriverRequest model)
@@ -160,8 +185,19 @@ namespace Carpool.Controllers
             }
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            object response = IDriverService.Update(user, model);
-            return Ok(response);
+            object driverDetails = IDriverService.Update(user, model);
+            if (driverDetails != null)
+            {
+                return Ok(new
+                {
+                    status = 200,
+                    driver = driverDetails
+                });
+            }
+            return BadRequest(new
+            {
+                error = "Unable to update Driver Details."
+            });
         }
         [HttpPost]
         public IActionResult CancelRide([FromBody] string rideId)
@@ -182,6 +218,63 @@ namespace Carpool.Controllers
             return BadRequest(new
             {
                 error = result
+            });
+        }
+        [HttpGet]
+        public IActionResult GetPromotions()
+        {
+            string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
+            PromotionRequest response = IDriverService.GetPromotions(user);
+            if (response != null)
+            {
+                return Ok(new
+                {
+                    status = 200,
+                    promotion = response
+                });
+            }
+            return BadRequest(new
+            {
+                error = "Unabe to fetch Promotion Details"
+            });
+        }
+        [HttpPut]
+        public IActionResult UpdatePromotion(PromotionRequest model)
+        {
+            string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
+            PromotionRequest updatedPromotion = IDriverService.UpdatePromotion(model, user);
+            if (updatedPromotion != null)
+            {
+                return Ok(new
+                {
+                    status = 200,
+                    promotion = updatedPromotion
+                });
+            }
+            return BadRequest(new
+            {
+                error = "Unable to update Promotion Details."
+            });
+        }
+        [HttpGet]
+        public IActionResult GetDetails()
+        {
+            string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
+            object driverDetails = IDriverService.GetDetails(user);
+            if (driverDetails != null)
+            {
+                return Ok(new
+                {
+                    status = 200,
+                    driver = driverDetails
+                });
+            }
+            return BadRequest(new
+            {
+                error = "Unable to fetch Driver Details"
             });
         }
     }

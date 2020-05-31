@@ -20,7 +20,6 @@ var urls = new Urls();
     error : string;
   }
   interface MyProps{
-    login : () => void
   }
   export class Signup extends Component<MyProps, MyState> {
     constructor(props: MyProps) {
@@ -37,7 +36,6 @@ var urls = new Urls();
     handleChange = (event: { target: { name: any;  value: any}; }): void => {
       const key = event.target.name;
       const value = event.target.value;
-      console.log(value);
       if (Object.keys(this.state).includes(key)) {
         this.setState({[key]: value } as Pick<MyState, keyof MyState>);
       }
@@ -69,8 +67,6 @@ var urls = new Urls();
             }
             if (res.token) {
               window.localStorage.setItem("authToken", res.token);
-              window.localStorage.setItem("user", JSON.stringify(res.user))
-              this.props.login();
             }
           }).catch(e => {
             console.log(e);

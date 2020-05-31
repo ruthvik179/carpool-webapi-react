@@ -11,5 +11,7 @@ namespace Carpool.Models
         public const double CancellationCharge = 0.15;
         public const double SGST = 0.05;
         public const double CGST = 0.05;
+        public const double MinimumDistance = 0;
+        public const double AppDiscount = 0.25;
     }
 }

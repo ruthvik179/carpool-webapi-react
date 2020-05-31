@@ -3,16 +3,27 @@ import UserDetailsForm from '../UserDetailsForm'
 import { Col, Alert } from 'reactstrap';
 import DriverDetailsForm from '../DriverDetailsForm';
 import { CSSTransition } from 'react-transition-group';
-import { UpdateDetails } from '../../Interfaces/EditProfile/UpdateDetails';
 import { Driver } from '../../Interfaces/Driver';
-import { ApiConnection } from '../../Services/ApiConnection'
-import { Urls } from '../../Constants/Urls';
 import { UserDetailsConstants } from '../../Constants/UserDetailsConstants';
 import { DriverDetailsConstants } from '../../Constants/DriverDetailsConstants';
-var api = new ApiConnection();
+import Promotions from '../Promotions/Promotions';
+import { Promotion } from '../../Interfaces/Promotion/Promotion';
+import { AppState } from '../../Redux/rootreducer';
+import { connect } from 'react-redux';
+import { User } from '../../Interfaces/Login/User';
+import { UpdateDriver, UpdatePromotionDetails, UpdateUser } from '../../Redux/Services/ProfileServices';
 var userDetailsConstants = new UserDetailsConstants();
 var driverDetailsConstants = new DriverDetailsConstants();
-var url = new Urls();
+interface MyProps{
+    updateUser : (name : string, email: string, phoneNumber : string) => void;
+    updateDriver : (license : string, registrationNumber : string, carManufacturer : string, carModel : string,carYearOfManufacture : string) => void;
+    updatePromo : (distance : string, discount : string) => void;
+    defaultUserDetails : User;
+    defaultDriverDetails : Driver;
+    defaultPromoDetails : Promotion;
+    alert : string;
+    alertType : string;
+}
 interface MyState{
     name : string;
     phoneNumber : string;
@@ -24,125 +35,57 @@ interface MyState{
     carYearOfManufacture : string,
     errorDetails : string;
     errorDriver : string;
-    defaultDetailsValues : UpdateDetails;
-    defaultDriverValues : Driver;
-    isADriver : boolean;
-    success : boolean;
-    alert : string;
+    errorPromotions : string;
+    distance : string;
+    discount : string;
 }
-export class EditProfile extends Component <{},MyState>{
+export class EditProfile extends Component <MyProps,MyState>{
     constructor(props) {
         super(props);
         this.state = {
-          name : "",
-          phoneNumber : "",
-          email : "",
-          license : "",
-          registrationNumber : "",
-          carManufacturer : "",
-          carModel : "",
-          carYearOfManufacture : "",
+          name : this.props.defaultUserDetails.name,
+          phoneNumber : this.props.defaultUserDetails.phoneNumber,
+          email : this.props.defaultUserDetails.email,
+          license : this.props.defaultDriverDetails.license,
+          registrationNumber : this.props.defaultDriverDetails.registrationNumber,
+          carManufacturer : this.props.defaultDriverDetails.carManufacturer,
+          carModel : this.props.defaultDriverDetails.carModel,
+          carYearOfManufacture : this.props.defaultDriverDetails.carYearOfManufacture,
           errorDetails : "",
           errorDriver : "",
-          defaultDetailsValues: { 
-            name : "",
-            phoneNumber : "",
-            email : ""
-         },
-         defaultDriverValues : {
-            license : "",
-            registrationNumber : "",
-            carManufacturer : "",
-            carModel : "",
-            carYearOfManufacture : "",
-         },
-         isADriver : true,
-         success : false,
-         alert : ""
+          errorPromotions : "",
+          distance : this.props.defaultPromoDetails.distance,
+          discount : this.props.defaultPromoDetails.discount,
         }
     }
-    componentDidMount(){
-        api.get(url.GetDetails)
-              .then(res => {
-              console.log(res);
-              this.setState({
-                name : res.name,
-                phoneNumber : res.phoneNumber,
-                email : res.email,
-                license : res.license,
-                registrationNumber : res.registrationNumber,
-                carManufacturer : res.carManufacturer,
-                carModel : res.carModel,
-                carYearOfManufacture : res.carYearOfManufacture,
-                  defaultDetailsValues : {
-                      name: res.name,
-                      phoneNumber : res.phoneNumber,
-                      email : res.email
-                  },
-                  defaultDriverValues : {
-                    license : res.license,
-                    registrationNumber : res.registrationNumber,
-                    carManufacturer : res.carManufacturer,
-                    carModel : res.carModel,
-                    carYearOfManufacture : res.carYearOfManufacture,
-                  }
-              })
-            }).catch(e => {
-              console.log(e);
-        });
-    }
+
     handleChange = (event: { target: { name: any;  value: any}; }): void => {
         const key = event.target.name;
         const value = event.target.value;
-        console.log(value);
         if (Object.keys(this.state).includes(key)) {
           this.setState({[key]: value } as Pick<MyState, keyof MyState>);
         }
-      }
-      handleDetailsSubmit = (event : any) =>{
-          event.preventDefault();
-          if(this.isDetailsFormFilled(this.state.name, this.state.email, this.state.phoneNumber) && 
-          this.validatePhone(this.state.phoneNumber) && 
-          this.validateEmail(this.state.email))
-          {
-            const data = {
-              Name : this.state.name,
-              PhoneNumber : this.state.phoneNumber,
-              Email : this.state.email
-            }
-  
-            api.put(url.UserUpdate, data)
-              .then(res => {
-              console.log(res);
-              if (res.token) {
-                window.localStorage.setItem("authToken", res.token);
-                window.localStorage.setItem("user", JSON.stringify(res.user))
-              }
-              this.setState({
-                  success : true,
-                  alert : "Personal Details Updated"
-              })
-              setTimeout(() => {
-                this.setState({
-                    success: false
-                })
-             }, 2000);
-            }).catch(e => {
-              console.log(e);
-            });
+    }
+    handleDetailsSubmit = (event : any) =>{
+        event.preventDefault();
+        if(this.isDetailsFormFilled(this.state.name, this.state.email, this.state.phoneNumber) && 
+        this.validatePhone(this.state.phoneNumber) && 
+        this.validateEmail(this.state.email))
+        {
+            this.props.updateUser(this.state.name, this.state.email, this.state.phoneNumber);
         }
-      }
-     validateEmail = (email : string) => {
-          var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-          if(!re.test(String(email).toLowerCase()))
-          {
-              this.setState({
-                  errorDetails : userDetailsConstants.EmailError
-              })
-            return false
-          }
-          return true;
+    }
+    validateEmail = (email : string) => {
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if(!re.test(String(email).toLowerCase()))
+        {
+            this.setState({
+                errorDetails : userDetailsConstants.EmailError
+            })
+        return false
         }
+        return true;
+    }
     validatePhone = (phoneNumber : string) => {
         var re = /^[0]?[789]\d{9}$/;
         if(!re.test(String(phoneNumber).toLowerCase()))
@@ -165,33 +108,12 @@ export class EditProfile extends Component <{},MyState>{
         return true;
     }
     handleDriverSubmit = (e: { preventDefault: () => void; }) => {
-        if(this.isFormFilled(this.state.license, this.state.registrationNumber, this.state.carManufacturer, this.state.carModel, this.state.carYearOfManufacture) &&
+        if(this.isDriverFormFilled(this.state.license, this.state.registrationNumber, this.state.carManufacturer, this.state.carModel, this.state.carYearOfManufacture) &&
         this.validateLicense(this.state.license) && this.validateRegistrationNumber(this.state.registrationNumber)){
             e.preventDefault();
-            const data = {
-            LicenseNo: this.state.license,
-            RegistrationNo: this.state.registrationNumber,
-            CarManufacturer: this.state.carManufacturer,
-            CarModel: this.state.carModel,
-            YearOfManufacture : this.state.carYearOfManufacture,
-            };
-        
-            api.put(url.DriverUpdate, data)
-            .then(res => console.log(res))
-            .then(() => {
-                this.setState({
-                    success : true,
-                    alert : "Driver Details Updated"
-                })
-                setTimeout(() => {
-                  this.setState({
-                      success: false
-                  })
-               }, 2000);
-            })
-            .catch(err => console.log(err));
+            this.props.updateDriver(this.state.license, this.state.registrationNumber, this.state.carManufacturer, this.state.carModel, this.state.carYearOfManufacture);
         }
-        };
+    }
     validateRegistrationNumber = (registrationNumber : string) => {
         var re = /^[A-Z]{2}[0-9]{1,2}[A-Z]{2}[0-9]{4}$/;
         if(!re.test(registrationNumber))
@@ -214,7 +136,8 @@ export class EditProfile extends Component <{},MyState>{
         }
         return true;
     }
-    isFormFilled = (licenseNo: string, registrationNumber: string, carManufacturer: string, carModel : string, carYearOfManufacture : string) => {
+    isDriverFormFilled = (licenseNo: string, registrationNumber: string, carManufacturer: string, carModel : string, carYearOfManufacture : string) => {
+        console.log(licenseNo);
         if(licenseNo.trim()==="" || registrationNumber.trim()==="" || carManufacturer.trim()===""|| carModel.trim()===""|| carYearOfManufacture.trim()===""){
         this.setState({
             errorDriver : driverDetailsConstants.FormNotFilledError
@@ -223,16 +146,26 @@ export class EditProfile extends Component <{},MyState>{
         }
         return true
     }
+    handlePromotionsSubmit = () => {
+        if(this.state.discount === "" || this.state.distance === ""){
+            this.setState({
+                errorPromotions : driverDetailsConstants.FormNotFilledError
+            })
+        }
+        else{
+            this.props.updatePromo(this.state.distance , this.state.discount)
+        }
+    }
     render() {
         return (
             <React.Fragment>
                 <CSSTransition
-                in={this.state.success}
+                in={this.props.alert !== ""? true : false}
                 timeout={350}
                 classNames="display"
                 unmountOnExit
                 >
-                    <Alert id="alert" color="success">{this.state.alert}</Alert> 
+                    <Alert id="alert" color={this.props.alertType}>{this.props.alert}</Alert> 
                 </CSSTransition>
                 <Col xs="12" className="edit-profile bg">
                     <UserDetailsForm 
@@ -240,20 +173,43 @@ export class EditProfile extends Component <{},MyState>{
                     handleChange={this.handleChange} 
                     handleSubmit={this.handleDetailsSubmit} 
                     error={this.state.errorDetails} 
-                    defaultValues={this.state.defaultDetailsValues} 
+                    defaultValues={this.props.defaultUserDetails} 
                     signup={false}
                     />
                     <DriverDetailsForm 
-                    defaultValues={this.state.defaultDriverValues} 
+                    defaultValues={this.props.defaultDriverDetails} 
                     heading="Driver Details" 
                     error={this.state.errorDriver}
                     handleChange={this.handleChange}
                     handleSubmit={this.handleDriverSubmit}
                     />    
+                    <Promotions
+                    handleChange={this.handleChange} 
+                    handleSubmit={this.handlePromotionsSubmit} 
+                    error={this.state.errorPromotions} 
+                    defaultValues= {this.props.defaultPromoDetails}
+                    />
                 </Col>
             </React.Fragment>
         )
     }
 }
+const mapStateToProps = (state : AppState) =>{
+    return{
+        defaultUserDetails : state.profile.user,
+        defaultDriverDetails : state.profile.DriverDetails,
+        defaultPromoDetails : state.profile.PromotionDetails,
+        alert :state.profile.alert,
+        alertType : state.profile.alertType
+    }
+}
+const mapDispatchToProps = (dispatch) =>{
+    return{
+        updateUser : (name : string, email: string, phoneNumber : string) => dispatch(UpdateUser(name, email, phoneNumber)),
+        updateDriver : (license : string, registrationNumber : string, carManufacturer : string, carModel : string,carYearOfManufacture : string
+        ) => dispatch(UpdateDriver(license, registrationNumber, carManufacturer, carModel, carYearOfManufacture)),
+        updatePromo : (distance : string, discount : string) => dispatch(UpdatePromotionDetails(distance, discount))
+    }
+}
 
-export default EditProfile
+export default connect(mapStateToProps, mapDispatchToProps)(EditProfile)

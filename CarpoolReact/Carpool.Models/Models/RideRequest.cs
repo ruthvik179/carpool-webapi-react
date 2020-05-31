@@ -15,12 +15,12 @@ namespace Carpool.Models
         public RequestState Status { get; set; }
         public string BoardingPointId { get; set; }
         public string DropoffPointId { get; set; }
-        public double Amount { get; set; }
+        public string BillId { get; set; }
         public RideRequest()
         {
 
         }
-        public RideRequest(string id, string rideId, string riderId, string driverId, string boardingPointId, string dropoffPointId, double amount)
+        public RideRequest(string id, string rideId, string riderId, string driverId, string boardingPointId, string dropoffPointId, string billId)
         {
             this.Id = id;
             this.RideId = rideId;
@@ -29,7 +29,7 @@ namespace Carpool.Models
             this.Status = RequestState.Pending;
             this.BoardingPointId = boardingPointId;
             this.DropoffPointId = dropoffPointId;
-            this.Amount = amount;
+            this.BillId = billId;
         }
 
     }

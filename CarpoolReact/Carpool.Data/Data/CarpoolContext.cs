@@ -20,6 +20,7 @@ namespace Carpool.Data
         public DbSet<Location> Locations { get; set; }
         public DbSet<RideRequest> RideRequests { get; set; }
         public DbSet<Seat> Seats { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
 
     }
 }

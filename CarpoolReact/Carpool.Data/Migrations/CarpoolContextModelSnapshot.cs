@@ -95,7 +95,13 @@ namespace Carpool.Migrations
                     b.Property<double>("Amount")
                         .HasColumnType("float");
 
+                    b.Property<double>("AppDiscount")
+                        .HasColumnType("float");
+
                     b.Property<double>("CGST")
+                        .HasColumnType("float");
+
+                    b.Property<double>("DriverDiscount")
                         .HasColumnType("float");
 
                     b.Property<string>("DriverId")
@@ -179,6 +185,9 @@ namespace Carpool.Migrations
                     b.Property<string>("License")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PromotionId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Drivers");
@@ -201,6 +210,22 @@ namespace Carpool.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Locations");
+                });
+
+            modelBuilder.Entity("Carpool.Models.Promotion", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("Discount")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Distance")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Promotions");
                 });
 
             modelBuilder.Entity("Carpool.Models.Ride", b =>
@@ -239,8 +264,8 @@ namespace Carpool.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
+                    b.Property<string>("BillId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("BoardingPointId")
                         .HasColumnType("nvarchar(max)");

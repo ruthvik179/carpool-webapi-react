@@ -9,7 +9,7 @@ namespace Carpool.Interfaces
 {
     public interface IUserService
     {
-        public object GetDetails(ApplicationUser user);
-        public int Update(ApplicationUser user, UserUpdateRequest model);
+        public User Update(ApplicationUser user, User model);
+        public User GetUser(ApplicationUser user);
     }
 }

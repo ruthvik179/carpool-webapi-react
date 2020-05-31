@@ -5,11 +5,14 @@ import history from './../../history'
 import { ApiConnection } from '../../Services/ApiConnection'
 import { HomePageConstants } from '../../Constants/HomePageConstants';
 import { Urls } from '../../Constants/Urls';
+import { connect } from 'react-redux';
 var api = new ApiConnection();
 var homePageConstants = new HomePageConstants();
 var urls = new Urls();
-export class Home extends Component <{}>{ 
-    user = JSON.parse(localStorage.user);
+interface MyProps {
+    user : any;
+}
+export class Home extends Component <MyProps>{
     redirect = (loc : string) => {
         history.push(loc)
     }
@@ -18,7 +21,7 @@ export class Home extends Component <{}>{
             <Col className = "home-container"xs ="12">
                 <Row className="header-row" p="3">
                     <Col className="header-column" xs="6">
-                        <h3 className="welcome-text">{homePageConstants.Greeting} {this.user.name}</h3>
+                        <h3 className="welcome-text">{homePageConstants.Greeting} {this.props.user.name}</h3>
                     </Col>
                 </Row>
                 <Row className="home-menu">
@@ -36,7 +39,7 @@ export class Home extends Component <{}>{
                             className="btn btn-primary button-offer" 
                             onClick = {
                                 () =>{
-                                    api.get(urls.IsADriver)
+                                    api.getAsync(urls.IsADriver)
                                         .then(
                                         (res ) => {
                                             console.log(res);
@@ -61,5 +64,10 @@ export class Home extends Component <{}>{
         );
     }
 }
-export default Home;
+const mapStateToProps = state =>{
+    return{
+        user: state.profile.user
+    }
+  }
+export default connect(mapStateToProps)(Home);
 

@@ -1,21 +1,21 @@
 import React from "react";
 import { Route } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 interface MyProps{
     component : any;
-    auth : any;
     exact : any;
     path : any;
-    isADriver? : boolean;
-    driverCheck? : (flag : boolean) => void
 }
-export default function ProtectedRoute({ component: Component, auth : Auth, ...rest } : MyProps) {
-  console.log(rest);
+
+export default function ProtectedRoute({ component: Component, ...rest } : MyProps) {
+  const isAuthenticated = useSelector((state : any) => state.authenticate.isAuthenticated)
+  // console.log(rest);
   return (
     <Route
       {...rest}
       render={props => {
-        if (Auth) {         
+        if (isAuthenticated) {         
           return <Component {...rest}/>
         } else {
            props.history.push('/login');

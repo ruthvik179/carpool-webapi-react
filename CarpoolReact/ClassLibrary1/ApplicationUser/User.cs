@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Carpool.Concerns
 {
-    public class UserUpdateRequest
+    public class User
     {
         public string Name { get; set; }
         public string PhoneNumber { get; set; }

@@ -1,6 +1,6 @@
 export class ApiConnection
 {
-    async post(url : string, data : any) {
+    async postAync(url : string, data : any) {
     const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -13,6 +13,19 @@ export class ApiConnection
     console.log(res);
     return await res.json();
   }
+
+  post(url : string, data : any) {
+    return  fetch(url, {
+    method: "POST",
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + localStorage.authToken,
+    },
+    body: JSON.stringify(data)
+    })
+    .then((res) => res.json());
+}
     async postWithoutAuth(url : string, data : any) {
     const res = await fetch(url, {
     method: "POST",
@@ -23,7 +36,8 @@ export class ApiConnection
     body: JSON.stringify(data)
     });
     return await res.json();
-  }
+   }
+
     async put(url : string, data : any) {
     const res = await fetch(url, {
     method: "PUT",
@@ -37,7 +51,7 @@ export class ApiConnection
     return await res.json();
   }
 
-    async get(url : string){
+    async getAsync(url : string){
     const res = await fetch(url, {
     method: "GET",
     headers: {
@@ -47,5 +61,17 @@ export class ApiConnection
     },
     });
     return await res.json();
+  }
+
+  async get(url : string){
+    return fetch(url, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + localStorage.authToken,
+    },
+    })
+    .then(res => res.json())
   }
 }

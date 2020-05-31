@@ -17,13 +17,6 @@ namespace Carpool.Models
         {
 
         }
-        public Car(string registrationNumber, string manufacturer, string model, string year)
-        {
-            this.RegistrationNumber = registrationNumber;
-            this.Manufacturer = manufacturer;
-            this.Model = model;
-            this.Year = year;
-        }
 
     }
 }

@@ -40,9 +40,23 @@ namespace Carpool.Services
                                 if (seats.Count > 0)
                                 {
                                     Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.Id.Equals(ride.DriverId));
+                                    Promotion promotion = carpoolDb.Promotions.FirstOrDefault(c => c.Id.Equals(driver.PromotionId));
                                     ApplicationUser userMatch = carpoolDb.ApplicationUsers.FirstOrDefault(c => c.Id.Equals(driver.ApplicationUserId));
                                     if (user != userMatch)
                                     {
+                                        var amount = Math.Round(model.Distance * Constants.Price, 2, MidpointRounding.ToEven);
+                                        var appDiscount = 0.0;
+                                        if (model.Distance > Constants.MinimumDistance)
+                                        {
+                                            appDiscount = Constants.AppDiscount * amount;
+                                        }
+                                        var driverDiscount = 0.0;
+                                        if (model.Distance > promotion.Distance)
+                                        {
+                                            driverDiscount = promotion.Discount * amount;
+                                        }
+                                        var cgst = (amount - driverDiscount - appDiscount) * Constants.CGST;
+                                        var sgst = (amount - driverDiscount - appDiscount) * Constants.SGST;
                                         MatchResponse match = new MatchResponse()
                                         {
                                             Name = userMatch.Name,
@@ -51,8 +65,17 @@ namespace Carpool.Services
                                             Date = model.Date,
                                             Time = ride.Time,
                                             Id = ride.Id,
-                                            Price = model.Distance * 10,
-                                            SeatCount = seats.Count
+                                            Price = new
+                                            {
+                                                Amount = amount,
+                                                CGST = cgst,
+                                                SGST = sgst,
+                                                DriverDiscount = driverDiscount,
+                                                AppDiscount = appDiscount,
+                                                CancellationCharges = 0,
+                                                Total = amount + cgst + sgst - driverDiscount - appDiscount
+                                            },
+                                            SeatCount = seats.Count,
                                         };
                                         matches.Add(match);
                                     }
@@ -73,24 +96,37 @@ namespace Carpool.Services
             {
                 Ride ride = carpoolDb.Rides.FirstOrDefault(c => c.Id.Equals(model.RideId));
                 Rider rider = carpoolDb.Riders.FirstOrDefault(c => c.ApplicationUserId.Equals(user.Id));
+                Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.Id.Equals(ride.DriverId));
+                Promotion promotion = carpoolDb.Promotions.FirstOrDefault(c => c.Id.Equals(driver.PromotionId));
                 if(rider == null)
                 {
                     rider = new Rider(user.Id, user.Id);
                     carpoolDb.Riders.Add(rider);
                 }
-                double price = Constants.Price;
-                var amount = Math.Round(model.Distance * price, 2, MidpointRounding.ToEven);
-                double sgst = Constants.SGST;
-                double cgst = Constants.CGST;
+                var amount = Math.Round(model.Distance * Constants.Price, 2, MidpointRounding.ToEven);
+                var driverDiscount = 0.0;
+                if (model.Distance > promotion.Distance)
+                {
+                    driverDiscount = promotion.Discount * amount;
+                }
+                var appDiscount = 0.0;
+                if (model.Distance > Constants.MinimumDistance)
+                {
+                    appDiscount = Constants.AppDiscount * amount;
+                }
+                var cgst = (amount - driverDiscount - appDiscount) * Constants.CGST;
+                var sgst = (amount - driverDiscount - appDiscount) * Constants.SGST;
+                Bill bill = new Bill(HelperService.GenerateId("BIL"), ride.DriverId, rider.Id, amount, sgst, cgst, driverDiscount, appDiscount);
+                carpoolDb.Bills.Add(bill);
                 RideRequest rideRequest = new RideRequest(
-                    HelperService.GenerateId("REQ"),
-                    model.RideId,
-                    rider.Id,
-                    ride.DriverId,
-                    model.Source.Id,
-                    model.Destination.Id,
-                    amount
-                    );
+                HelperService.GenerateId("REQ"),
+                model.RideId,
+                rider.Id,
+                ride.DriverId,
+                model.Source.Id,
+                model.Destination.Id,
+                bill.Id
+                );
                 carpoolDb.RideRequests.Add(rideRequest);
                 carpoolDb.SaveChanges();
                 return "Ok";
@@ -126,11 +162,17 @@ namespace Carpool.Services
                     Date = Convert.ToString(ride.Date),
                     Time = ride.Time,
                     Id = booking.Id,
-                    Price = bill.Amount,
-                    Status = Convert.ToString(booking.BookingState),
+                    Price = new
+                    {
+                        Amount = bill.Amount,
+                        CGST = bill.CGST,
+                        SGST = bill.SGST,
+                        DriverDiscount = bill.DriverDiscount,
+                        AppDiscount = bill.AppDiscount,
+                        Total = bill.TotalAmount()
+                    },
                     CancellationCharges = booking.CancellationCharges,
-                    Sgst = bill.SGST,
-                    Cgst = bill.CGST
+                    Status = Convert.ToString(booking.BookingState),
                 };
                 matches.Add(match);
             }
@@ -150,6 +192,7 @@ namespace Carpool.Services
                 Driver driver = carpoolDb.Drivers.FirstOrDefault(c => c.Id.Equals(request.DriverId));
                 ApplicationUser driverUser = carpoolDb.ApplicationUsers.FirstOrDefault(c => c.Id.Equals(driver.ApplicationUserId));
                 Ride ride = carpoolDb.Rides.FirstOrDefault(c => c.Id.Equals(request.RideId));
+                Bill bill = carpoolDb.Bills.FirstOrDefault(c => c.Id.Equals(request.BillId));
                 Location Source = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(request.BoardingPointId));
                 Location Destination = carpoolDb.Locations.FirstOrDefault(c => c.Id.Equals(request.DropoffPointId));
                 MatchResponse match = new MatchResponse()
@@ -160,7 +203,15 @@ namespace Carpool.Services
                     Date = Convert.ToString(ride.Date),
                     Time = ride.Time,
                     Id = request.Id,
-                    Price = request.Amount,
+                    Price = new
+                    {
+                        Amount = bill.Amount,
+                        CGST = bill.CGST,
+                        SGST = bill.SGST,
+                        DriverDiscount = bill.DriverDiscount,
+                        AppDiscount = bill.AppDiscount,
+                        Total = bill.TotalAmount()
+                    },
                     Status = Convert.ToString(request.Status)
                 };
                 matches.Add(match);

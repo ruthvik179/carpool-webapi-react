@@ -12,34 +12,14 @@ import EditProfile from './Component/EditProfile/EditProfile'
 import OfferRide from './Component/Offer/OfferRide'
 import RegisterDriver from './Component/RegisterDriver/RegisterDriver'
 import Profile from './Component/Profile/Profile';
-import history from './history'
 import ViewRides from './Component/ViewRides/ViewRides';
+import { authenticateUserFromToken } from './Redux/Services/AuthenticationServices';
+import { connect } from 'react-redux';
 interface MyProps {}
-interface MyState {
-    isAuthenticated: boolean;
-}
-export class App extends Component<MyProps, MyState>{
-  constructor(props : MyProps){
-    super(props)
-    this.state = {
-      isAuthenticated: localStorage.authToken !== undefined ? true : false,
-    };
-    
-    }
-    logout = () => {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      this.setState({
-        isAuthenticated : false,
-      })
-      history.push('/login')
-    }
-
-    login = () => {
-    this.setState({
-      isAuthenticated : true,
-    })
-    }
+export class App extends Component<MyProps>{
+  componentDidMount(){
+    authenticateUserFromToken();
+  }
   render (){
     return(
     <div className="App">
@@ -47,19 +27,23 @@ export class App extends Component<MyProps, MyState>{
         <Route path='/login' component={LoginSignup} />   
         <Route path='/signup' component={LoginSignup} /> 
       </Layout>
-      <Route path={["/home", "/book", "/offer", "/rides", "/registerdriver", "/profile"]} render={props => <Profile logout={this.logout} />}/>
-      {/* <Route path ='/home' component = {Home}/>  */}
-      <ProtectedRoute  exact path ="/home" component = {HomePage} auth={this.state.isAuthenticated} /> 
-      <Route exact path="/login" render={props => <Loginform login={this.login} />} />
-      <Route exact path="/signup" render={props => <Signup login={this.login} />} />
-      <ProtectedRoute  exact path ="/book" component = {BookingPage} auth={this.state.isAuthenticated}/> 
-      <ProtectedRoute  exact path ="/offer" component = {OfferRide} auth={this.state.isAuthenticated} /> 
-      <ProtectedRoute  exact path ="/registerdriver" component = {RegisterDriver} auth={this.state.isAuthenticated}/> 
-      <ProtectedRoute  exact path ="/rides" component = {ViewRides} auth={this.state.isAuthenticated}/> 
-      <ProtectedRoute  exact path ="/profile" component ={EditProfile} auth={this.state.isAuthenticated}/>
+      <Route path={["/home", "/book", "/offer", "/rides", "/registerdriver", "/profile"]} render={props => <Profile />}/>
+      <ProtectedRoute  exact path ="/home" component = {HomePage} /> 
+      <Route exact path="/login" render={props => <Loginform />} />
+      <Route exact path="/signup" render={props => <Signup />} />
+      <ProtectedRoute  exact path ="/book" component = {BookingPage} /> 
+      <ProtectedRoute  exact path ="/offer" component = {OfferRide}  /> 
+      <ProtectedRoute  exact path ="/registerdriver" component = {RegisterDriver} /> 
+      <ProtectedRoute  exact path ="/rides" component = {ViewRides} /> 
+      <ProtectedRoute  exact path ="/profile" component ={EditProfile} />
     </div>
     );
   };
 }
+const mapDispatchToProps = dispatch =>{
+  return{
+    authenticateUserFromToken : () => dispatch(authenticateUserFromToken())
+  };
+}
 
-export default App;
+export default connect(mapDispatchToProps)(App);

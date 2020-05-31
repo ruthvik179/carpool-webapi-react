@@ -38,17 +38,15 @@ namespace Carpool.Controllers
         {
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            return Ok(user);
-        }
-        [HttpGet]
-        public IActionResult GetDetails()
-        {
-            string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
-            return Ok(IUserService.GetDetails(user));
+            User userResponse = IUserService.GetUser(user);
+            return Ok(new 
+            { 
+                status = 200,
+                user = userResponse
+            });
         }
         [HttpPut]
-        public IActionResult Update(UserUpdateRequest model)
+        public IActionResult Update(User model)
         {
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ApplicationUser user = context.ApplicationUsers.FirstOrDefault(c => c.Email.Equals(email));
@@ -60,7 +58,7 @@ namespace Carpool.Controllers
                     error = "Email is already being used by another account"
                 });
             }
-            IUserService.Update(user, model);
+            User userResponse = IUserService.Update(user, model);
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
@@ -77,7 +75,7 @@ namespace Carpool.Controllers
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expiration = token.ValidTo,
-                user = user
+                user = userResponse
             });
             
         }

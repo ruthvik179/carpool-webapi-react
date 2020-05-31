@@ -4,32 +4,28 @@ import RideForm from './../RideForm/RideForm'
 import './../../Styles/style.scss';
 import SearchResult from "./../SearchCard/SearchCard"
 import { CSSTransition } from 'react-transition-group';
-import { ApiConnection } from '../../Services/ApiConnection'
-import { Match } from '../../Interfaces/Booking/Match';
+import { RideMatch } from '../../Interfaces/Booking/RideMatch';
 import Loading from '../Loading/Loading';
-import { Urls } from '../../Constants/Urls';
-export interface Matches extends Array<Match>{}
-var api = new ApiConnection();
-var url = new Urls();
+import { Place } from '../../Interfaces/Booking/Place';
+import { GetRideMatches, RequestRide } from '../../Redux/Services/BookingServices';
+import { connect } from 'react-redux';
+import { AppState } from '../../Redux/rootreducer';
+export interface RideMatches extends Array<RideMatch>{}
 interface MyProps{
-  
+  getRideMatches : (source : Place, destination : Place, date : string, time :string) => void,
+  requestRide : (id : string ) => void,
+  alert : string,
+  alertType : string,
+  searchResults : RideMatches
 }
 interface MyState{
-    source : any;
-    destination : any;
+    source : Place;
+    destination : Place;
     date : string;
     time : string;
-    submittedSource : any;
-    submittedDestination : any;
-    submittedDate : string;
-    submittedTime : string;
-    searchResults : Matches;
-    error: string,
-    distance : number,
-    success : boolean;
+    formError: string;
     loading : boolean;
 }
-
 export class Book extends Component<MyProps, MyState> {
     constructor(props: MyProps){
         super(props)
@@ -46,27 +42,10 @@ export class Book extends Component<MyProps, MyState> {
               lng: 0,
               id : ""
             },
+            formError : "",
             date: "",
             time: "",
-            submittedSource: {
-              name: "",
-              lat: 0,
-              lng: 0,
-              id : ""
-            },
-            submittedDestination: {
-              name: "",
-              lat: 0,
-              lng: 0,
-              id : ""
-            },
-            submittedDate: "",
-            submittedTime: "",
-            searchResults : [],
-            error : "",
-            distance : 0,
-            success : false,
-            loading : false,
+            loading : false
         }
     }
     handleChange = (event: { target: { name: any; value: any; }; } , ): void => {
@@ -78,7 +57,6 @@ export class Book extends Component<MyProps, MyState> {
         }
     }
     handlePlaceChange = (type : string, place : any) => {
-      console.log(place)
         if (type === "source") {
           this.setState({
             source: {
@@ -98,113 +76,35 @@ export class Book extends Component<MyProps, MyState> {
             }
           });
         }
-      };
+    };
     handleSubmit = (e: { preventDefault: () => void; }) => {
       e.preventDefault();
       this.setState({
         loading : true
       })
       if((this.state.source.lat === 0 && this.state.source.lng === 0) ||
-        (this.state.destination.lat === 0 && this.state.destination.lng === 0) ||
-        this.state.date === "" || 
-        this.state.time === "" ){
+      (this.state.destination.lat === 0 && this.state.destination.lng === 0) ||
+      this.state.date === "" || 
+      this.state.time === "" ){
         this.setState({
-          error : "Please fill all the fields"
+          formError : "Please fill all the fields"
         });
       }
       else{
-        this.setState({
-          submittedSource: {
-            name: this.state.source.name,
-            lat: this.state.source.lat,
-            lng: this.state.source.lng,
-            id : this.state.source.id
-          },
-          submittedDestination: {
-            name: this.state.destination.name,
-            lat: this.state.destination.lat,
-            lng: this.state.destination.lng,
-            id : this.state.destination.id
-          },
-          submittedDate: this.state.date,
-          submittedTime: this.state.time
-        });
-          var srcLocation = new google.maps.LatLng(this.state.source.lat, this.state.source.lng);
-          var dstLocation = new google.maps.LatLng(this.state.destination.lat, this.state.destination.lng);
-          var distance = google.maps.geometry.spherical.computeDistanceBetween(srcLocation, dstLocation);
-          console.log(distance/1000)
-          distance = +distance.toFixed(2);
-          this.setState({
-            error : "",
-            distance : distance/1000
-          })
-          const data = {
-            Source: {
-              Name: this.state.source.name,
-              Latitude: this.state.source.lat,
-              Longitude: this.state.source.lng,
-              Id: this.state.source.id
-            },
-            Destination: {
-              Name: this.state.destination.name,
-              Latitude: this.state.destination.lat,
-              Longitude: this.state.destination.lng,
-              Id: this.state.destination.id
-            },
-            Date: this.state.date,
-            Time : this.state.time,
-            Distance : distance/1000
-          };
-          console.log(JSON.stringify(data));
-        api.post(url.GetRideMatches, data)
-          .then(
-            (res) => {
-              this.setState({
-                  searchResults : res.matches,
-                  loading : false
-              })
-            }
-          )
-          .catch(err => console.log(err));
+        this.props.getRideMatches(this.state.source, this.state.destination, this.state.date, this.state.time)
       }
+      this.setState({
+        loading : false
+      })
     };
     handleRequest = (id : string) => {
       this.setState({
         loading : true
       })
-      const data = {
-        Source: {
-          Name: this.state.submittedSource.name,
-          Latitude: this.state.submittedSource.lat,
-          Longitude: this.state.submittedSource.lng,
-          Id: this.state.submittedSource.id
-        },
-        Destination: {
-          Name: this.state.submittedDestination.name,
-          Latitude: this.state.submittedDestination.lat,
-          Longitude: this.state.submittedDestination.lng,
-          Id: this.state.submittedDestination.id
-        },
-        Date: this.state.submittedDate,
-        Time : this.state.submittedTime,
-        Distance : this.state.distance,
-        RideId : id
-      };
-      console.log(data);
-      api.post(url.RequestRide, data)
-      .then(res => console.log(res))
-      .then(() => {
-        this.setState({
-          success : true,
-          loading : false
-        })
-        setTimeout(() => {
-          this.setState({
-              success: false,
-          })
-        }, 2000);
+      this.props.requestRide(id);
+      this.setState({
+        loading : false
       })
-      .catch(err => console.log(err));
     }
     render(){
         const values = {
@@ -213,16 +113,25 @@ export class Book extends Component<MyProps, MyState> {
             date : this.state.date,
             time : this.state.time,
         }
-          
+        const Price = {
+          amount : 2000,
+          cgst : 150,
+          sgst : 150,
+          driverDiscount : 100,
+          appDiscount : 200,
+          total : 2200,
+          cancellationCharges : 0
+        }   
     return this.state.loading ? <Loading/> : (
+
       <React.Fragment>
         <CSSTransition
-        in={this.state.success}
+        in={this.props.alert !== '' ? true : false}
         timeout={350}
         classNames="display"
         unmountOnExit
         >
-          <Alert id="alert" color="success">Ride has been requested succesfully</Alert> 
+          <Alert id="alert" color={this.props.alertType}>{this.props.alert}</Alert> 
         </CSSTransition>
         <Container fluid={true} className="book bg">
             <RideForm 
@@ -231,15 +140,15 @@ export class Book extends Component<MyProps, MyState> {
             handlePlaceChange={this.handlePlaceChange} 
             values={values} 
             handleSubmit={this.handleSubmit}
-            error={this.state.error}
+            error={this.state.formError}
             />
             <div className="result-container">
-                {this.state.searchResults.length > 0 ?  
+                {this.props.searchResults.length > 0 ?    
                 <div className="matches">
                     <h1>Your Matches!</h1>
                 </div> : null}
-                {this.state.searchResults ? 
-                this.state.searchResults.map((val: Match, i: number) => {
+                {this.props.searchResults ? 
+                this.props.searchResults.map((val: RideMatch, i: number) => {
                  return(
                   <SearchResult 
                   name={val.name} 
@@ -261,4 +170,17 @@ export class Book extends Component<MyProps, MyState> {
     );
     }
 }
-export default Book;
+const mapStateToProps = (state : AppState) =>{
+  return{
+      alert : state.booking.alert,
+      alertType : state.booking.alertType,
+      searchResults : state.booking.searchResults
+  }
+}
+const mapDispatchToProps = dispatch =>{
+  return{
+      getRideMatches: (source : Place, destination : Place, date : string, time :string)=> dispatch(GetRideMatches(source, destination, date, time)),
+      requestRide : (id : string) => dispatch(RequestRide(id))
+  };
+}
+export default connect(mapStateToProps , mapDispatchToProps)(Book);

@@ -18,5 +18,8 @@ namespace Carpool.Interfaces
         public object GetRideDetails(string rideId);
         public object Update(ApplicationUser user, RegisterDriverRequest model);
         public string CancelRide(string rideId);
+        public PromotionRequest UpdatePromotion(PromotionRequest model, ApplicationUser user);
+        public PromotionRequest GetPromotions(ApplicationUser user);
+        public object GetDetails(ApplicationUser user);
     }
 }

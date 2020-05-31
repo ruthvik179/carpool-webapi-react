@@ -15,7 +15,6 @@ function Seats(props : MyProps) {
                 value : value,
             },
         };
-        console.log(data);
         props.handleChange(data);
     }
     return (

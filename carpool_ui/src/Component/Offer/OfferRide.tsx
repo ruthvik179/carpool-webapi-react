@@ -2,32 +2,31 @@ import React, { Component } from "react";
 import GeneratePage from "./GeneratePage";
 import { Alert } from "reactstrap";
 import { CSSTransition } from "react-transition-group";
-import { ApiConnection } from '../../Services/ApiConnection'
 import Loading from "../Loading/Loading";
-import { Urls } from "../../Constants/Urls";
-var api = new ApiConnection();
-var urls = new Urls();
-export interface viaPoints extends Array<any> { }
+import { Place, ViaPoints } from "../../Interfaces/Booking/Place";
+import { connect } from "react-redux";
+import {CreateRide} from "../../Redux/Services/OfferServices"
+import { AppState } from "../../Redux/rootreducer";
 interface MyProps{
-
+  alert : string;
+  alertType : string;
+  createRide : (source : Place, destination : Place, date : string, viaPoints : ViaPoints, time : string, seats : number) => void;
 }
 interface MyState{
-    source : any;
-    destination : any;
+    source : Place;
+    destination : Place;
     next : boolean;
-    viaPoints : viaPoints;
+    viaPoints : ViaPoints;
     date : string;
     seats : number;
     time : string;
     error1 : string;
     error2 : string;
-    success : boolean;
     loading : boolean;
 }
 export class OfferRide extends Component<MyProps, MyState> {
   constructor(props : MyProps) {
     super(props);
-
     this.state = {
       source: {
         name: "",
@@ -56,7 +55,6 @@ export class OfferRide extends Component<MyProps, MyState> {
       time: "",
       error1: "",
       error2: "",
-      success: false,
       loading: false
     };
   }
@@ -84,7 +82,6 @@ export class OfferRide extends Component<MyProps, MyState> {
     }
   }
   handlePlaceChange = (type : string, place : any) => {
-    console.log(place);
     if (type === "source") {
       this.setState({
         source: {
@@ -106,7 +103,6 @@ export class OfferRide extends Component<MyProps, MyState> {
     }
   };
   handleViaPointChange = (place : any, index : number) => {
-    console.log(place);
     const viaPointsClone = this.state.viaPoints;
     viaPointsClone[index].name = place.formatted_address;
     viaPointsClone[index].lat = place.geometry.location.lat();
@@ -154,54 +150,11 @@ export class OfferRide extends Component<MyProps, MyState> {
       })
     }
     else{
-      const data = {
-        Source: {
-          Name: this.state.source.name,
-          Latitude: this.state.source.lat,
-          Longitude: this.state.source.lng,
-          Id: this.state.source.id,
-        },
-        Destination: {
-          Name: this.state.destination.name,
-          Latitude: this.state.destination.lat,
-          Longitude: this.state.destination.lng,
-          Id: this.state.destination.id,
-        },
-        Date: this.state.date,
-        
-        ViaPoints: this.state.viaPoints.map(viaPoint => {
-          return {
-            Name: viaPoint.name,
-            Latitude: viaPoint.lat,
-            Longitude: viaPoint.lng,
-            Id: viaPoint.id
-          };
-        }),
-        Time : this.state.time,
-        Seats : this.state.seats
-      };
-      api.post(urls.CreateRide, data)
-      .then(res => {
-        console.log(res);
-        if(res.status === 200){
-          this.setState({
-            success : true,
-            loading : false
-          })
-          setTimeout(() => {
-            this.setState({
-                success: false,
-            })
-          }, 2000);
-        }
-        else {
-          this.setState({
-            error2 : res.error,
-            loading : false
-          })
-        }
-      }).catch(err => console.log(err));
+      this.props.createRide(this.state.source, this.state.destination, this.state.date, this.state.viaPoints, this.state.time, this.state.seats);
     }
+    this.setState({
+      loading : false
+    })
   };
   render(){
     const values = {
@@ -217,12 +170,12 @@ export class OfferRide extends Component<MyProps, MyState> {
         
         <React.Fragment>
           <CSSTransition
-          in={this.state.success}
+          in={this.props.alert !== '' ? true : false}
           timeout={350}
           classNames="display"
           unmountOnExit
           >
-             <Alert id="alert" color="success">Ride has been offered succesfully</Alert> 
+            <Alert id="alert" color={this.props.alertType}>{this.props.alert}</Alert> 
           </CSSTransition>
           
           <GeneratePage 
@@ -243,4 +196,15 @@ export class OfferRide extends Component<MyProps, MyState> {
 
   }
 }
-export default OfferRide
+const mapStateToProps = (state : AppState) =>{
+  return{
+      alert : state.offer.alert,
+      alertType : state.offer.alertType,
+  }
+}
+const mapDispatchToProps = dispatch =>{
+  return{
+      createRide : (source : Place, destination : Place, date : string, viaPoints : ViaPoints, time : string, seats : number)=> dispatch(CreateRide(source, destination, date, viaPoints, time, seats)),
+  };
+}
+export default connect(mapStateToProps ,mapDispatchToProps)(OfferRide)

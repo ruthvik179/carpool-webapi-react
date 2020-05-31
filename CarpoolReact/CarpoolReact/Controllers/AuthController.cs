@@ -13,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 using Carpool.Concerns;
-
+using Microsoft.Extensions.Configuration;
 namespace Carpool.Controllers
 {
     [Route("api/[controller]/[Action]")]
@@ -82,8 +82,7 @@ namespace Carpool.Controllers
                 return Ok(new
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
-                    expiration = token.ValidTo,
-                    user = user
+                    expiration = token.ValidTo
                 });
             }
             return Unauthorized();

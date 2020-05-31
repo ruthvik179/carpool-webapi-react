@@ -9,6 +9,9 @@ export class RideConstants{
     readonly SeatsLabel = "Seat Availability";
     readonly StateTaxLabel = "SGST";
     readonly CentralTaxLabel = "CGST";
+    readonly DriverDiscountLabel = "Driver Disc.";
+    readonly AppDiscountLabel = "App Disc.";
+    readonly TotalLabel = "Total";
     readonly CancellationChargesLabel = "CancellationCharges";
     readonly BookingsLabel = "Bookings";
     readonly RideRequestsLabel = "Requests";

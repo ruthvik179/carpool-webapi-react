@@ -48,7 +48,7 @@ export class RegisterDriver extends Component<MyProps, MyState> {
           YearOfManufacture : this.state.carYearOfManufacture,
         };
     
-        api.post(urls.RegisterDriver, data)
+        api.postAync(urls.RegisterDriver, data)
           .then((res : any) => {
             console.log(res)
             if(res.error)
